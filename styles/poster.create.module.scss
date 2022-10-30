@@ -1,0 +1,46 @@
+$debug: false;
+
+.margin20px {
+    margin: 20px;
+}
+
+.container {
+    margin: 0 100px;
+    margin-top: 100px;
+    height: 100%;
+}
+
+.project_creation_stage {
+    padding: 20px;
+    border-left: 0.5px solid gray;
+    @if $debug {
+        outline: 2px solid black;
+    }
+}
+
+.project_creation {
+
+    @if $debug {
+        outline: 2px solid green;
+    }
+
+    // applies to a particular stage
+    .selected_stage {
+        background-color: darken(white, 10);
+    }
+
+    // applies to all stages on the left hand side
+    .stage {
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 15px;
+    }
+
+    // applies to each component of the creation stage
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    gap: 20px;
+    h1 {
+        margin: 0;
+    }
+}

@@ -1,0 +1,35 @@
+
+$background-color: white;
+.title {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+// .logo {
+//     // display: block;
+// }
+
+.container {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 3fr 1fr;
+    background-color: $background-color;
+    padding: 12px 5%;
+    // border-bottom: 1px solid black;
+    box-shadow: 0px 0px 5px gray;
+}
+
+.options_container {
+    display: flex;
+    justify-content: center;
+    .options {
+        &:hover {
+            cursor: pointer;
+            background-color: darken($background-color, 5%);
+        }
+        // font-weight: 800;
+        border-radius: 10px;
+        margin: auto 1rem;
+        padding: 5px 20px;
+    }
+}
