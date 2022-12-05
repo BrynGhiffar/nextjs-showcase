@@ -287,7 +287,7 @@ export default function CreatePoster() {
     const [current_project, set_project] = useState(project);
 
     return ( <>
-        <Navbar/>
+        <Navbar isAuthenticated={true}/>
         <div className={style.container}>
             <h1>
                 Project Creation Page
