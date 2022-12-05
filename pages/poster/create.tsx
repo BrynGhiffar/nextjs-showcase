@@ -58,24 +58,11 @@ const contributors: Contributor[] = [
 ]
 
 const project: Project = {
-    "name" : "The Project",
-    "description": "An awesome project",
-    "youtube_link": "https://www.youtube.com/",
-    "github_link": "https://www.github.com",
-    "contributors": [
-        {
-            "id": "12345",
-            "name": "Member 1",
-        },
-        {
-            "id": "22345",
-            "name": "Member 2",
-        },
-        {
-            "id": "32345",
-            "name": "Member 3",
-        }
-    ]
+    "name" : "",
+    "description": "",
+    "youtube_link": "",
+    "github_link": "",
+    "contributors": []
 }
 
 type ProjectSetter = Dispatch<SetStateAction<Project>>
