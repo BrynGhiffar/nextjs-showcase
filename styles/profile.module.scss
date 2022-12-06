@@ -6,6 +6,12 @@ $debug-mode: false;
     height: 100%;
 }
 
+.progress_circle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
 .separator {
     border-bottom: 1px solid black;
     margin-bottom: 20px;
@@ -24,51 +30,58 @@ $debug-mode: false;
     @if $debug-mode {
         outline: 1px solid red;
     }
-    // display: flex;
     display: grid;
-    // grid-template-columns: 1fr 1fr 1fr;
-    grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
-    gap: 20px;
-    // gap: $gap;
-    // flex-wrap: wrap;
-    // flex-direction: row;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
     .project_card {
-        &:hover {
-            cursor: pointer;
-            background-color: lighten(gray, 35%);
-        }
-        padding: 20px 10px;
+        $base-color: lighten(gray, 40%);
+        $hover-color: lighten(gray, 35%);
+        $border-radius: 7px;
+        background-color: white;
         width: 100%;
-        // min-height: 375px;
-        // max-width: 40%;
-        // // margin: 0 10px;
-        // // margin-bottom: 15px;
+        border-radius: $border-radius;
+        position: relative;
+        top: 0px;
+        transition-property: top, background-color;
+        transition-duration: 300ms;
+        transition-timing-function: ease-out;
+        min-height: 50vh;
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
         @if $debug-mode {
             outline: 1px solid red;
         }
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-        gap: 20px;
-        // grid-auto-flow: column;
-        // grid-auto-columns: 2fr 2fr;
-        background-color: lighten(gray, 40%);
-        border-radius: 15px;
 
-        @media (max-width: 680px) {
-            .project_description {
-                // visibility: hidden;
-                display: none;
-            }
-            
+        &:hover {
+            background-color: $hover-color;
+            position: relative;
+            top: -10px;
         }
-
-        // .project_description {
-        //     margin: 0 10px;
-        // }
+        .project_poster {
+            height: 40vh;
+            width: 80%;
+            margin: auto;
+            top: 30px;
+            position: relative;
+            overflow: visible;
+        }
+        .project_description {
+            border-top: 0.5rem solid darken($base-color, 40%);
+            border-radius: 0px 0px $border-radius $border-radius;
+            background-color: $base-color;
+            padding: 20px 10px 10px;
+        }
     }
+
 }
 
 .create_poster_card {
+    cursor: pointer;
+    display: flex;
     .square {
         margin: auto;
         width: 70px;
@@ -87,12 +100,8 @@ $debug-mode: false;
 
 .description_profile {
     .textarea {
-        &:focus {
-            background-color: lighten(gray, 40%);
-            // border: 1px solid rgba(0, 255, 0, 0.2);
-            // outline: 3px solid rgba(0, 255, 0, 0.5);
-        }
         margin: 0;
+        font-family: sans-serif;
         font-size: 1rem;
         width: 95%;
         min-height: 40%;
@@ -101,35 +110,38 @@ $debug-mode: false;
         padding: 10px;
         border-radius: 15px;
         border: 1px solid lighten(gray, 35%);
-        transition: outline 0.05s ease-in-out;
-        // transition: border 1s linear;
-
-        // reset styling
-        // border: none;
+        transition: background-color 200ms ease-in;
         -webkit-box-shadow: none;
         -moz-box-shadow: none;
         box-shadow: none;
         outline: none;
         box-shadow: none;
 
-        @if $debug-mode {
+        &:focus {
+            background-color: lighten(gray, 40%);
         }
     }
 
     button {
-        &:hover {
-            background-color: darken(white, 15%);
-        }
+        $base-color: darken(white, 10%);
+        $hover-color: darken(white, 15%);
+
         border-radius: 15px;
         margin: 5px;
         padding: 5px;
-        background-color: darken(white, 10%);
+        background-color: $base-color;
         border: none;
         -webkit-box-shadow: none;
         -moz-box-shadow: none;
         box-shadow: none;
         outline: none;
         box-shadow: none;
+        transition-property: background-color;
+        transition-duration: 300ms;
+        transition-timing-function: ease-out;
+        &:hover {
+            background-color: $hover-color;
+        }
     }
 }
 

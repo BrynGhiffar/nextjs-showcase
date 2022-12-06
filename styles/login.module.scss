@@ -1,0 +1,82 @@
+.container {
+    $base-color: gray;
+    width: 100vw;
+    height: 100vh;
+    background-color: $base-color;
+    display: flex;
+
+    .container_bg {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        background-color: $base-color;
+        display: flex;
+        background-image: url("../public/office.jpg");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        // blur
+        filter: blur(20px);
+        -webkit-filter: blur(20px);
+
+        &::before {
+            position: absolute;
+            content: "";
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(lightblue, 0.3);
+        }
+
+    }
+
+    .wrapper {
+        z-index: 10;
+        width: 30vw;
+        aspect-ratio: 3 / 2;
+        margin: auto;
+        border-radius: 10px;
+        background-color: white;
+        padding: 20px;
+        display: grid;
+        grid-template-rows: 1fr 1fr 3fr;
+        box-shadow: 0px 0px 40px 0px black;
+
+        h1 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            font-weight: 600;
+            color: darken(gray, 30%);
+        }
+
+        .button_wrapper {
+            display: flex;
+            justify-content: center;
+
+            .login {
+
+                $base-color: lightgray;
+                $hover-color: darken($base-color, 10%);
+                border-radius: 10px;
+                width: 10vw;
+                height: 5vh;
+                font-size: 1.2rem;
+                display: block;
+                margin: auto;
+                border: none;
+                background-color: $base-color;
+                color: darken(gray, 30%);
+                cursor: pointer;
+                transition-property: all;
+                transition-timing-function: ease-out;
+                transition-duration: 200ms;
+
+                &:hover {
+                    background-color: $hover-color;
+                }
+            }
+        }
+
+    }
+}

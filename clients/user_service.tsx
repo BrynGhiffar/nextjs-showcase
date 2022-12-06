@@ -19,6 +19,11 @@ export type FindUserByIdResponse = {
     user: UserData
 }
 
+export type FindAllUserResponse = {
+    message: string,
+    users: UserData[]
+}
+
 export type UserData = {
     "user_id": string,
     "provider_id": string,
@@ -87,8 +92,8 @@ export async function findUserById(user_id: string): Promise<FindUserByIdRespons
 export async function findUserByMsftProvider(provider: string, providerId: string): Promise<FindUserByProviderResponse> {
 
     const requestOptions: RequestInit = {
-    method: 'GET',
-    redirect: 'follow'
+        method: 'GET',
+        redirect: 'follow'
     };
 
     const res: FindUserByProviderResponse = 
@@ -96,5 +101,18 @@ export async function findUserByMsftProvider(provider: string, providerId: strin
                     .then(response => response.text())
                     .then(result => JSON.parse(result) as UserData)
                     .catch(error => error);
+    return res;
+}
+
+export async function findAllUser(): Promise<FindAllUserResponse> {
+    const requestOptions: RequestInit = {
+        method: 'GET',
+        redirect: 'follow'
+    };
+
+    const res : FindAllUserResponse = await fetch("http://localhost:8000/service/user/v1/", requestOptions)
+                .then(response => response.text())
+                .then(result => JSON.parse(result))
+                .catch(error => error);
     return res;
 }

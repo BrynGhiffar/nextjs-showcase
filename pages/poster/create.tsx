@@ -1,6 +1,6 @@
 import Navbar from "../../components/navbar";
 import style from "../../styles/poster.create.module.scss";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import dynamic from "next/dynamic";
@@ -18,6 +18,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import Autocomplete from "@mui/material/Autocomplete";
 import Switch from "@mui/material/Switch";
+import { create_project, ProjectData } from "../../clients/project_service";
+import { useRouter } from "next/router";
+import { findAllUser } from "../../clients/user_service";
+import { extractBase64, toBase64 } from "../../utility/base64";
 
 const MDEditor = dynamic(
   () => import("@uiw/react-md-editor"),
@@ -25,20 +29,23 @@ const MDEditor = dynamic(
 );
 
 
-type Contributor = {
+type Member = {
     "id": string,
     "name": string
 };
 
 type Project = {
     "name": string,
+    "short_description": string,
     "description": string,
     "youtube_link": string,
     "github_link": string,
-    "contributors": Contributor[]
+    "poster_image": string,
+    "members": Member[],
+    "report": string,
 }
 
-const contributors: Contributor[] = [
+const contributors: Member[] = [
     {
         "id": "1",
         "name": "John Doe"
@@ -57,12 +64,15 @@ const contributors: Contributor[] = [
     },
 ]
 
-const project: Project = {
+const EMPTY_PROJECT: Project = {
     "name" : "",
+    "short_description": "",
     "description": "",
     "youtube_link": "",
     "github_link": "",
-    "contributors": []
+    "poster_image": "",
+    "members": [],
+    "report": ""
 }
 
 type ProjectSetter = Dispatch<SetStateAction<Project>>
@@ -85,8 +95,18 @@ function ProjectInformation({current_project, set_project} : ProjectInformationP
         });
     };
 
+    const set_project_short_description = (set_project: ProjectSetter, new_short_description: string | undefined) => {
+        set_project(project => {
+            if (new_short_description === undefined) {
+                return project;
+            }
+            return { ...project, short_description: new_short_description};
+        })
+    };
+
     const project_name = current_project.name;
     const project_description = current_project.description;
+    const project_short_description = current_project.short_description;
     const [usingReadme, setUsingReadme] = useState(false);
     return (
         <>
@@ -100,6 +120,12 @@ function ProjectInformation({current_project, set_project} : ProjectInformationP
                     }}/>
                 </div>
                 <h3>Project Description</h3>
+                <div>
+                    <TextField label="One Sentence Description of Project" variant="outlined" value={project_short_description} fullWidth onChange={e => {
+                        const value = e.target.value;
+                        set_project_short_description(set_project, value);
+                    }}/>
+                </div>
                 <Switch value={usingReadme} onClick={_ => setUsingReadme(uReadme => !uReadme)}/> <span>Use GitHub readme.md file</span>
                 <div>
                     {
@@ -135,8 +161,27 @@ function LinkUpload({ current_project, set_project } : LinkUploadProps ) {
             return { ...project, github_link: new_github_link };
         });
     };
+
+    const set_project_poster = (set_project: ProjectSetter, new_poster: string) => {
+        set_project(project => {
+            if (new_poster === undefined) {
+                return project;
+            }
+            return { ...project, poster_image: new_poster };
+        });
+    };
+
+    const set_project_report = (set_project: ProjectSetter, new_report: string) => {
+        set_project(project => {
+            if (new_report === undefined) {
+                return project;
+            }
+            return { ...project, report: new_report };
+        });
+    };
     const youtube_link = current_project.youtube_link;
     const github_link = current_project.github_link;
+
     return (
         <>
             <div>
@@ -159,15 +204,47 @@ function LinkUpload({ current_project, set_project } : LinkUploadProps ) {
                             accept="image/*"
                             style={{ display: 'none' }}
                             id="raised-button-file"
-                            multiple
                             type="file"
                             onChange={e => {
-                                console.log(e.target.files);
+                                const run = async () => {
+                                    const files = e.target.files;
+                                    if (files !== null) {
+                                        const posterBase64 = await toBase64(files[0]);
+                                        set_project_poster(set_project, posterBase64);
+                                    } else {
+                                    }
+                                }
+                                run();
                             }}
                         />
                         <label htmlFor="raised-button-file">
                         <Button component="span" variant="outlined">
                             Upload Poster
+                        </Button>
+                        </label> 
+                    </div>
+                    <br />
+                    <div>
+                        <input
+                            accept="application/pdf"
+                            style={{ display: 'none' }}
+                            id="upload-report"
+                            type="file"
+                            onChange={e => {
+                                const run = async () => {
+                                    const files = e.target.files;
+                                    if (files !== null) {
+                                        const reportBase64 = await toBase64(files[0]);
+                                        set_project_report(set_project, reportBase64);
+                                    } else {
+                                    }
+                                }
+                                run();
+                            }}
+                        />
+                        <label htmlFor="upload-report">
+                        <Button component="span" variant="outlined">
+                            Upload Report
                         </Button>
                         </label> 
                     </div>
@@ -180,37 +257,60 @@ function LinkUpload({ current_project, set_project } : LinkUploadProps ) {
 type ContributorProps = { current_project: Project, set_project: Dispatch<SetStateAction<Project>> }
 
 function Contributor({ current_project, set_project } : ContributorProps) {
-    const project_contributor = current_project.contributors;
-    const add_contributor = (new_contributor: Contributor) => {
+    const router = useRouter();
+    const project_contributor = current_project.members;
+    const add_member = (new_member: Member) => {
         set_project(project => {
-            return {...project, contributors: [...project_contributor, new_contributor]};
+            return {...project, members: [...project_contributor, new_member]};
         });
     };
 
-    const remove_contributor = (contributor: Contributor) => {
+    const remove_contributor = (member: Member) => {
         set_project(project => {
-            return {...project, contributors: project_contributor.filter(contribr => contribr.id != contributor.id)};
+            return {...project, members: project_contributor.filter(contribr => contribr.id != member.id)};
         });
     };
 
-    const contributor_to_component = (contributor: Contributor) => (
+    const contributor_to_component = (member: Member) => (
         <ListItem secondaryAction={
             <IconButton edge="end" aria-label="remove user" onClick={_ => {
-                remove_contributor(contributor);
+                remove_contributor(member);
             }}>
                 <DeleteIcon/>
             </IconButton>
-        } key={contributor.id}>
+        } key={member.id}>
         <ListItemAvatar>
             <Avatar>
                 <PersonIcon/>
             </Avatar>
         </ListItemAvatar>
-            <ListItemText primary={`${contributor.name} (${contributor.id})`}/>
+        <ListItemText primary={`${member.name} (${member.id})`}/>
         </ListItem>
     )
-    const [contributor_selection, set_contributor_selection] = useState<Contributor | null>(null);
+    const [contributor_selection, set_contributor_selection] = useState<Member | null>(null);
     const [selection_error, set_selection_error] = useState(false);
+    const [contributor_option, set_contributor_options] = useState<Member[]>([]);
+
+    useEffect(() => {
+        const run = async () => {
+            // find all users.
+            const res = await findAllUser();
+            if (res !== undefined) {
+                const users = res.users;
+                const members: Member[] = users.map(u => ({"id": u.user_id, "name": u.name}));
+                set_contributor_options(members);
+            }
+            // then set contributor option to all users.
+        };
+        run();
+
+    }, []);
+
+
+    useEffect(() => {
+        console.log(current_project.members);
+    }, [current_project.members]);
+
     return (
         <>
             <div>
@@ -222,8 +322,8 @@ function Contributor({ current_project, set_project } : ContributorProps) {
                 </List>
                 <Autocomplete
                     className={style.margin20px}
-                    options={contributors}
-                    getOptionLabel={(contributor: Contributor) => `${contributor.name} - ${contributor.id}`}
+                    options={contributor_option}
+                    getOptionLabel={(member: Member) => `${member.id} - ${member.name}`}
                     renderInput={params => <TextField {...params} label="Contributor"/>}
                     value={contributor_selection}
                     onChange={(event, new_value) => {
@@ -235,7 +335,7 @@ function Contributor({ current_project, set_project } : ContributorProps) {
                         }
                     }}
                 />
-                <Button variant="outlined" color={selection_error ? "error" : undefined} onClick={_ => {
+                <Button variant="outlined" color={selection_error ? "error" : undefined} className={style.margin20px} onClick={_ => {
                     if (contributor_selection != null) {
                         const found = project_contributor.find(contribr => contribr.id == contributor_selection.id);
                         if (found) {
@@ -243,12 +343,37 @@ function Contributor({ current_project, set_project } : ContributorProps) {
                             return;
                         }
                         set_selection_error(err => false);
-                        add_contributor(contributor_selection);
+                        add_member(contributor_selection);
                         set_contributor_selection(null);
                     }
 
                     return;
                 }}>Add Member</Button>
+                <br />
+                <Button 
+                    variant="contained" 
+                    color="success" 
+                    className={style.margin20px}
+                    onClick={async (_) => {
+                        const projectData: ProjectData = {
+                            "project_id": "",
+                            "class_id": "",
+                            "name": current_project.name,
+                            "members": current_project.members.map(m => m.id),
+                            "poster_image": current_project.poster_image,
+                            "report": current_project.report,
+                            "short_description": current_project.short_description,
+                            "description": current_project.description,
+                            "youtube_link": current_project.youtube_link,
+                            "github_link": current_project.github_link
+                        };
+                        const res = await create_project(projectData);
+                        console.log(res);
+                        set_project(_ => EMPTY_PROJECT);
+                        router.push("/profile");
+                    }}
+                
+                >Submit</Button>
             </div>
         </>
     )
@@ -284,7 +409,11 @@ function CreationFormHandler({component, current_project, set_project} : FormHan
 export default function CreatePoster() {
 
     const [stage, setStage] = useState(PROJECT_INFORMATION);
-    const [current_project, set_project] = useState(project);
+    const [current_project, set_project] = useState(EMPTY_PROJECT);
+
+    useEffect(() => {
+        console.log(current_project);
+    }, [current_project]);
 
     return ( <>
         <Navbar isAuthenticated={true}/>

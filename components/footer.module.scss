@@ -1,0 +1,30 @@
+$debug-mode: false;
+.footer {
+    height: fit-content;
+    background-color: lightgray;
+    margin-top: 2rem;
+    padding: 1rem 0rem 0rem;
+    box-sizing: border-box;
+
+    .container {
+        width: 30vw;
+        margin: auto;
+        .grid_container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+
+            @if $debug-mode {
+                outline: 1px solid red;
+            }
+
+
+            .footer_item {
+                color: black;
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}

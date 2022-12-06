@@ -15,8 +15,12 @@ $background-color: white;
     grid-auto-columns: 3fr 1fr;
     background-color: $background-color;
     padding: 12px 5%;
-    // border-bottom: 1px solid black;
     box-shadow: 0px 0px 5px gray;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 5;
 }
 
 .options_container {

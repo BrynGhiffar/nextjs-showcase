@@ -5,6 +5,9 @@ import { useEffect } from 'react';
 import { callMsGraph } from '../azureGraph.config';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { useRouter } from 'next/router';
+import style from "../styles/login.module.scss"
+import microsoftIcon from "../public/microsoft.png";
+import Image from "next/image";
 
 const Login: NextPage = () => {
   // the index page will be the login page
@@ -42,12 +45,21 @@ const Login: NextPage = () => {
     }
   }, [isAuthenticated]);
 
-
   return (
-    <div>
-      <button onClick={handleLogin}>Login</button>
-      <button onClick={handleLogout}>Logout</button>
-      <button onClick={handleFetchGraph}>Log User Data</button>
+    <div className={style.container}>
+      <div className={style.container_bg}></div>
+      <div className={style.wrapper}>
+        <h1>Project Showcase</h1>
+        <h1>Login</h1>
+        <div className={style.button_wrapper}>
+          <button className={style.login} onClick={handleLogin}>
+            <Image src={microsoftIcon} height={16} width={16}/>
+            <code>     </code>Microsoft
+          </button>
+        </div>
+        {/* <button onClick={handleLogout}>Logout</button> */}
+        {/* <button onClick={handleFetchGraph}>Log User Data</button> */}
+      </div>
     </div>
   )
 }
