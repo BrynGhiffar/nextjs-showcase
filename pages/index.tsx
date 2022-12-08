@@ -8,6 +8,8 @@ import { useRouter } from 'next/router';
 import style from "../styles/login.module.scss"
 import microsoftIcon from "../public/microsoft.png";
 import Image from "next/image";
+import {getCurrentUser} from "../clients/azure_service";
+import {findCreateUserMsftProviderId} from "../clients/user_service"
 
 const Login: NextPage = () => {
   // the index page will be the login page
@@ -40,9 +42,18 @@ const Login: NextPage = () => {
   }
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/home");
+    const run = async() =>{
+      if (isAuthenticated) {
+        const user = await getCurrentUser(instance, accounts);
+        if (user !== null){
+          const res = await findCreateUserMsftProviderId(user.providerId,user.username, user.useremail);
+          console.log(res)
+          router.push("/home");
+
+        }
+      }
     }
+    run();
   }, [isAuthenticated]);
 
   return (
