@@ -1,27 +1,31 @@
 import Navbar from "../../components/navbar";
 import style from "../../styles/poster.create.module.scss";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, SyntheticEvent, useEffect, useState } from "react";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import dynamic from "next/dynamic";
-import { TextField } from "@mui/material";
+import { Alert, ButtonGroup, Icon, Snackbar, TextField } from "@mui/material";
 import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
-import { PersonPinCircleOutlined } from "@mui/icons-material";
-import FolderIcon from "@mui/icons-material/Folder";
+import AddAPhotoOutlined from "@mui/icons-material/AddAPhotoOutlined"
+import { AddBoxOutlined } from "@mui/icons-material";
 import PersonIcon from "@mui/icons-material/Person";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined"
 import IconButton from "@mui/material/IconButton";
 import Autocomplete from "@mui/material/Autocomplete";
 import Switch from "@mui/material/Switch";
-import { create_project, ProjectData } from "../../clients/project_service";
+import { create_project, EMPTY_PROJECT_DATA_FILE, find_projects_by_user_id, ProjectData, ProjectDataFile } from "../../clients/project_service";
 import { useRouter } from "next/router";
-import { findAllUser } from "../../clients/user_service";
+import { findAllUser, findUserByMsftProvider } from "../../clients/user_service";
 import { extractBase64, toBase64 } from "../../utility/base64";
+import { useMsal } from "@azure/msal-react";
+import { getCurrentUserId } from "../../clients/azure_client";
+import { fetch_readme } from "../../clients/github_client";
 
 const MDEditor = dynamic(
   () => import("@uiw/react-md-editor"),
@@ -40,9 +44,9 @@ type Project = {
     "description": string,
     "youtube_link": string,
     "github_link": string,
-    "poster_image": string,
+    "poster_image": ProjectDataFile | null,
     "members": Member[],
-    "report": string,
+    "report": ProjectDataFile | null,
 }
 
 const contributors: Member[] = [
@@ -70,9 +74,9 @@ const EMPTY_PROJECT: Project = {
     "description": "",
     "youtube_link": "",
     "github_link": "",
-    "poster_image": "",
+    "poster_image": null,
     "members": [],
-    "report": ""
+    "report": null
 }
 
 type ProjectSetter = Dispatch<SetStateAction<Project>>
@@ -80,6 +84,8 @@ type ProjectSetter = Dispatch<SetStateAction<Project>>
 type ProjectInformationProps = { current_project: Project, set_project: Dispatch<SetStateAction<Project>> }
 
 function ProjectInformation({current_project, set_project} : ProjectInformationProps) {
+
+    const [github_link, set_github_link] = useState<string>("");
 
     const set_project_name = (set_project: ProjectSetter, new_name: string) => {
         set_project(project => {
@@ -131,21 +137,27 @@ function ProjectInformation({current_project, set_project} : ProjectInformationP
                     {
                         usingReadme ?
                         <>
-                            <TextField label="GitHub Link" variant="outlined" margin="normal" fullWidth/>
-                            <Button variant="outlined" style={{marginBottom: "20px"}}>PULL</Button>
+                            <TextField label="GitHub Link" variant="outlined" margin="normal" fullWidth value={github_link} onChange={e => {
+                                const { value } = e.target;
+                                set_github_link(value);
+                            }}/>
+                            <Button variant="outlined" style={{marginBottom: "20px"}} onClick={async () => {
+                                const readme = await fetch_readme(github_link);
+                                set_project_description(set_project, readme);
+                            }}>PULL</Button>
                         </> : ""
                     }
 
-                    <MDEditor value={project_description} onChange={v => set_project_description(set_project, v)} height={350}/>
+                    <MDEditor value={project_description} onChange={v => set_project_description(set_project, v)} height={500}/>
                 </div>
             </div>
         </>
     )
 }
 
-type LinkUploadProps = { current_project: Project, set_project: Dispatch<SetStateAction<Project>> }
+type LinkUploadProps = { current_project: Project, set_project: Dispatch<SetStateAction<Project>>, set_is_loading: SetIsLoading };
 
-function LinkUpload({ current_project, set_project } : LinkUploadProps ) {
+function LinkUpload({ current_project, set_project, set_is_loading } : LinkUploadProps ) {
 
     
     const set_project_youtube_link = (set_project: ProjectSetter, new_youtube_link: string) => {
@@ -162,23 +174,76 @@ function LinkUpload({ current_project, set_project } : LinkUploadProps ) {
         });
     };
 
-    const set_project_poster = (set_project: ProjectSetter, new_poster: string) => {
+    const set_project_poster = (set_project: ProjectSetter, filename: string, base64: string, size: number) => {
         set_project(project => {
-            if (new_poster === undefined) {
+            if (base64 === undefined) {
                 return project;
             }
-            return { ...project, poster_image: new_poster };
+            const splitted = filename.split(".");
+            const ext = splitted[splitted.length - 1];
+            const name = splitted.slice(0, splitted.length - 1).join(".");
+            const kb: number = 1024;
+            const mb: number = 1024 * kb;
+            let fileSize: string = `0 kb`;
+            if (size >= mb) {
+                fileSize = `${Math.floor(size / mb * 100) / 100} mb`;
+            } else if (size >= kb) {
+                fileSize = `${Math.floor(size / kb * 100) / 100} kb`;
+            } else {
+                fileSize = `${size} b`;
+            }
+            return { ...project, poster_image: {name, ext, base64, size: fileSize} };
         });
     };
 
-    const set_project_report = (set_project: ProjectSetter, new_report: string) => {
+    const set_empty_project_poster = () => {
+        set_project(project => ({ ...project, poster_image: null }));
+    };
+
+    const set_project_report = (set_project: ProjectSetter, filename: string, base64: string, size: number) => {
         set_project(project => {
-            if (new_report === undefined) {
+            if (base64 === undefined) {
                 return project;
             }
-            return { ...project, report: new_report };
+            const splitted = filename.split(".");
+            const ext = splitted[splitted.length - 1];
+            const name = splitted.slice(0, splitted.length - 1).join(".");
+            const kb: number = 1024;
+            const mb: number = 1024 * kb;
+            let fileSize: string = `0 kb`;
+            if (size >= mb) {
+                fileSize = `${Math.floor(size / mb * 100) / 100} mb`;
+            } else if (size >= kb) {
+                fileSize = `${Math.floor(size / kb * 100) / 100} kb`;
+            } else {
+                fileSize = `${size} b`;
+            }
+            return { ...project, report: {name, ext, base64, size: fileSize} };
         });
     };
+
+    const set_empty_project_report = () => {
+        set_project(project => ({...project, report: null}));
+    }
+
+    const delete_poster_name = (name: string, ext: string) => {
+        const full = name + "." + ext;
+        const max_length = 15;
+        if (full.length > max_length) {
+            return full.substring(0, max_length) + "...";
+        } else {
+            return full;
+        }
+    };
+    const [open_file_upload_success, set_open_file_upload_success] = useState<boolean>(false);
+
+    const handle_file_upload_success_snackbar_close = (event?: SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        };
+        set_open_file_upload_success(false);
+    }
+
     const youtube_link = current_project.youtube_link;
     const github_link = current_project.github_link;
 
@@ -200,28 +265,40 @@ function LinkUpload({ current_project, set_project } : LinkUploadProps ) {
                         }}/>
                     </div>
                     <div>
-                        <input
-                            accept="image/*"
-                            style={{ display: 'none' }}
-                            id="raised-button-file"
-                            type="file"
-                            onChange={e => {
-                                const run = async () => {
-                                    const files = e.target.files;
-                                    if (files !== null) {
-                                        const posterBase64 = await toBase64(files[0]);
-                                        set_project_poster(set_project, posterBase64);
-                                    } else {
+                        <Button variant="outlined" component="label" style={{marginRight: "10px"}} disabled={current_project.poster_image !== null}>
+                            <input
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                id="raised-button-file"
+                                type="file"
+                                hidden
+                                onChange={e => {
+                                    const run = async () => {
+                                        set_is_loading(true);
+                                        const files = e.target.files;
+                                        if (files !== null) {
+                                            const file = files[0];
+                                            const filename = file.name;
+                                            const size = file.size;
+                                            const posterBase64 = await toBase64(file);
+                                            set_project_poster(set_project, filename, posterBase64, size);
+                                        } else {
+                                        }
+                                        set_is_loading(false);
+                                        set_open_file_upload_success(true);
                                     }
-                                }
-                                run();
-                            }}
-                        />
-                        <label htmlFor="raised-button-file">
-                        <Button component="span" variant="outlined">
+                                    run();
+                                }}
+                            />
+                            <AddAPhotoOutlined style={{marginRight: "5px"}}></AddAPhotoOutlined>
                             Upload Poster
                         </Button>
-                        </label> 
+                        <Button variant="outlined" color="error" disabled={current_project.poster_image === null} onClick={() => {
+                            set_empty_project_poster();
+                        }}>
+                            <DeleteOutlined></DeleteOutlined>
+                            {current_project.poster_image !== null ? delete_poster_name(current_project.poster_image.name, current_project.poster_image.ext) : "remove poster"} 
+                        </Button>
                     </div>
                     <br />
                     <div>
@@ -232,31 +309,50 @@ function LinkUpload({ current_project, set_project } : LinkUploadProps ) {
                             type="file"
                             onChange={e => {
                                 const run = async () => {
-                                    const files = e.target.files;
-                                    if (files !== null) {
-                                        const reportBase64 = await toBase64(files[0]);
-                                        set_project_report(set_project, reportBase64);
-                                    } else {
-                                    }
+                                        set_is_loading(true);
+                                        const files = e.target.files;
+                                        if (files !== null) {
+                                            const file = files[0];
+                                            const filename = file.name;
+                                            const size = file.size;
+                                            const posterBase64 = await toBase64(file);
+                                            set_project_report(set_project, filename, posterBase64, size);
+                                        } else {
+                                        }
+                                        set_is_loading(false);
+                                        set_open_file_upload_success(true);
                                 }
                                 run();
                             }}
                         />
                         <label htmlFor="upload-report">
-                        <Button component="span" variant="outlined">
+                        <Button component="span" variant="outlined" style={{marginRight: "10px"}} disabled={current_project.report !== null}>
+                            <AddBoxOutlined style={{marginRight: "5px"}}></AddBoxOutlined>
                             Upload Report
                         </Button>
                         </label> 
+                        <Button variant="outlined" color="error" disabled={current_project.report === null} onClick={() => {
+                            set_empty_project_report();
+                        }}>
+                            <DeleteOutlined></DeleteOutlined>
+                            {current_project.report !== null ? delete_poster_name(current_project.report.name, current_project.report.ext) : "remove report"} 
+                        </Button>
                     </div>
                 </div>
             </div>
+            <Snackbar open={open_file_upload_success} autoHideDuration={6000} onClose={handle_file_upload_success_snackbar_close}>
+                <Alert onClose={handle_file_upload_success_snackbar_close} severity="success" sx={{ width: '100%' }}>
+                    File Successfully Uploaded
+                </Alert>
+            </Snackbar>
         </>
     )
 }
 
-type ContributorProps = { current_project: Project, set_project: Dispatch<SetStateAction<Project>> }
+type SetIsLoading = Dispatch<SetStateAction<boolean>>;
+type ContributorProps = { current_project: Project, set_project: Dispatch<SetStateAction<Project>>, set_is_loading: SetIsLoading }
 
-function Contributor({ current_project, set_project } : ContributorProps) {
+function Contributor({ current_project, set_project, set_is_loading } : ContributorProps) {
     const router = useRouter();
     const project_contributor = current_project.members;
     const add_member = (new_member: Member) => {
@@ -294,12 +390,14 @@ function Contributor({ current_project, set_project } : ContributorProps) {
     useEffect(() => {
         const run = async () => {
             // find all users.
+            set_is_loading(true);
             const res = await findAllUser();
             if (res !== undefined) {
                 const users = res.users;
                 const members: Member[] = users.map(u => ({"id": u.user_id, "name": u.name}));
                 set_contributor_options(members);
             }
+            set_is_loading(false);
             // then set contributor option to all users.
         };
         run();
@@ -321,55 +419,53 @@ function Contributor({ current_project, set_project } : ContributorProps) {
                     {project_contributor.map(contributor_to_component)}
                 </List>
                 <Autocomplete
+                    color={selection_error ? "error" : undefined} 
                     className={style.margin20px}
                     options={contributor_option}
                     getOptionLabel={(member: Member) => `${member.id} - ${member.name}`}
-                    renderInput={params => <TextField {...params} label="Contributor"/>}
-                    value={contributor_selection}
+                    renderInput={params => <TextField {...params} label="Members"/>}
+                    getOptionDisabled={(member: Member) => (project_contributor.find(contribr => contribr.id == member.id) !== undefined)}
+                    value={null}
                     onChange={(event, new_value) => {
                         set_selection_error(err => false);
                         if (new_value != null) {
                             // set current contributor selection
-
-                            set_contributor_selection(new_value);
+                            const found = project_contributor.find(contribr => contribr.id == new_value.id);
+                            if (found) {
+                                set_selection_error(err => true);
+                                return;
+                            }
+                            set_selection_error(err => false);
+                            add_member(new_value);
+                            set_contributor_selection(null);
                         }
                     }}
                 />
-                <Button variant="outlined" color={selection_error ? "error" : undefined} className={style.margin20px} onClick={_ => {
-                    if (contributor_selection != null) {
-                        const found = project_contributor.find(contribr => contribr.id == contributor_selection.id);
-                        if (found) {
-                            set_selection_error(err => true);
-                            return;
-                        }
-                        set_selection_error(err => false);
-                        add_member(contributor_selection);
-                        set_contributor_selection(null);
-                    }
-
-                    return;
-                }}>Add Member</Button>
-                <br />
                 <Button 
                     variant="contained" 
                     color="success" 
                     className={style.margin20px}
                     onClick={async (_) => {
+                        set_is_loading(true);
+                        const poster_image: ProjectDataFile = current_project.poster_image === null 
+                                                    ? EMPTY_PROJECT_DATA_FILE : current_project.poster_image;
+                        const report: ProjectDataFile = current_project.report === null
+                                                        ? EMPTY_PROJECT_DATA_FILE : current_project.report
                         const projectData: ProjectData = {
                             "project_id": "",
                             "class_id": "",
                             "name": current_project.name,
                             "members": current_project.members.map(m => m.id),
-                            "poster_image": current_project.poster_image,
-                            "report": current_project.report,
+                            "poster_image": poster_image,
+                            "report": report,
                             "short_description": current_project.short_description,
                             "description": current_project.description,
                             "youtube_link": current_project.youtube_link,
                             "github_link": current_project.github_link
                         };
                         const res = await create_project(projectData);
-                        console.log(res);
                         set_project(_ => EMPTY_PROJECT);
+                        set_is_loading(false);
                         router.push("/profile");
                     }}
                 
@@ -386,21 +482,22 @@ const CONTRIBUTORS = "CONTRIBUTORS";
 type FormHandlerProps = {
     component: string,
     current_project: Project,
-    set_project: Dispatch<SetStateAction<Project>>
+    set_project: Dispatch<SetStateAction<Project>>,
+    set_is_loading: SetIsLoading
 }
 
-function CreationFormHandler({component, current_project, set_project} : FormHandlerProps) {
+function CreationFormHandler({component, current_project, set_project, set_is_loading} : FormHandlerProps) {
 
     if (component == PROJECT_INFORMATION) {
         return (<ProjectInformation current_project={current_project} set_project={set_project}/>);
     }
 
     if (component == UPLOAD_LINK) {
-        return (<LinkUpload current_project={current_project} set_project={set_project}/>);
+        return (<LinkUpload current_project={current_project} set_project={set_project} set_is_loading={set_is_loading}/>);
     }
 
     if (component == CONTRIBUTORS) {
-        return (<Contributor current_project={current_project} set_project={set_project}/>);
+        return (<Contributor current_project={current_project} set_project={set_project} set_is_loading={set_is_loading}/>);
     }
 
     return (<></>);
@@ -408,35 +505,50 @@ function CreationFormHandler({component, current_project, set_project} : FormHan
 
 export default function CreatePoster() {
 
+    const { instance, accounts } = useMsal();
     const [stage, setStage] = useState(PROJECT_INFORMATION);
     const [current_project, set_project] = useState(EMPTY_PROJECT);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        const run = async () => {
+            const provider = "MSFT";
+            const provider_id = await getCurrentUserId(instance, accounts);
+            const res = await findUserByMsftProvider(provider, provider_id);
+            const member: Member = { name: res.user.name, id: res.user.user_id };
+            set_project(p => ({...p, members: p.members.concat(member)}));
+        };
+
+        run();
+    }, []);
 
     useEffect(() => {
         console.log(current_project);
     }, [current_project]);
 
     return ( <>
-        <Navbar isAuthenticated={true}/>
+        <Navbar isLoading={isLoading}/>
         <div className={style.container}>
             <h1>
-                Project Creation Page
+                Publish
             </h1>
             <div className={style.project_creation}>
                 <div className={style.project_creation_stages}>
+                    <p className={style.stage_title}>Sections</p>
                     <p onClick={_ => setStage(_ => PROJECT_INFORMATION)} className={(() => {
                         let className = `${style.stage} `;
                         if (stage == PROJECT_INFORMATION) {
                             className += style.selected_stage + " ";
                         }
                         return className;
-                    })()}>Project Information</p>
+                    })()}>General</p>
                     <p onClick={_ => setStage(_ => UPLOAD_LINK)} className={(() => {
                         let className = `${style.stage} `;
                         if (stage == UPLOAD_LINK) {
                             className += style.selected_stage + " ";
                         }
                         return className;
-                    })()}>Upload Links</p>
+                    })()}>Uploads</p>
                     <p onClick={_ => setStage(_ => CONTRIBUTORS)} className={(() => {
                         let className = `${style.stage} `;
                         if (stage == CONTRIBUTORS) {
@@ -446,7 +558,7 @@ export default function CreatePoster() {
                     })()}>Contributors/Team members</p>
                 </div>
                 <div className={style.project_creation_stage}>
-                    <CreationFormHandler component={stage} current_project={current_project} set_project={set_project}/>
+                    <CreationFormHandler component={stage} current_project={current_project} set_project={set_project} set_is_loading={setIsLoading}/>
                 </div>
             </div>
         </div>

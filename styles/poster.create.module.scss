@@ -24,22 +24,39 @@ $debug: false;
         outline: 2px solid green;
     }
 
+    $stage-base: darken(white, 10%);
+    $chosen-base: darken(white, 15%);
+
     // applies to a particular stage
     .selected_stage {
-        background-color: darken(white, 10);
+        background-color: $chosen-base;
     }
 
     // applies to all stages on the left hand side
+    .stage_title {
+        margin: 0px 0px 0px 0px;
+        padding: 0px 10px 0px 0px;
+        border-bottom: 0.5px solid gray;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
     .stage {
+        margin: 0px;
+        padding: 7px 10px;
         cursor: pointer;
-        padding: 5px 10px;
-        border-radius: 15px;
+
+        transition-property: all;
+        transition-duration: 200ms;
+        transition-timing-function: ease-out;
+        &:hover {
+            background-color: $stage-base;
+        }
     }
 
     // applies to each component of the creation stage
     display: grid;
     grid-template-columns: 1fr 5fr;
-    gap: 20px;
+    gap: 0px;
     h1 {
         margin: 0;
     }
