@@ -1,3 +1,4 @@
+const HOST = "http://localhost:8000";
 
 export type UpdateUserDescriptionRequest = {
     user_id: string,
@@ -71,7 +72,7 @@ export async function updateDescription(user_id: string, new_description: string
     };
 
     const res: UpdateUserDescriptionResponse =
-        await fetch("http://localhost:8000/service/user/v1/description", requestOptions)
+        await fetch(`${HOST}/service/user/v1/description`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as UpdateUserDescriptionResponse)
             .catch(error => error);
@@ -100,7 +101,7 @@ export async function createUser(providerId: string, useremail: string, username
         redirect: 'follow'
     };
 
-    const res : CreateMsftUserResponse = await fetch("http://localhost:8000/service/user/v1", requestOptions)
+    const res : CreateMsftUserResponse = await fetch(`${HOST}/service/user/v1`, requestOptions)
         .then(response => response.text())
         .then(result => JSON.parse(result))
         .catch(error => error);
@@ -127,7 +128,7 @@ export async function findUserById(user_id: string): Promise<FindUserByIdRespons
     };
 
     const res: FindUserByIdResponse =
-        await fetch(`http://localhost:8000/service/user/v1/${user_id}`, requestOptions)
+        await fetch(`${HOST}/service/user/v1/${user_id}`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as FindUserByIdResponse)
             .catch(error => error);
@@ -143,7 +144,7 @@ export async function findUserByMsftProvider(provider: string, providerId: strin
     };
 
     const res: FindUserByProviderResponse =
-        await fetch(`http://localhost:8000/service/user/v1/${provider}/${providerId}`, requestOptions)
+        await fetch(`${HOST}/service/user/v1/${provider}/${providerId}`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as UserData)
             .catch(error => error);
@@ -156,7 +157,7 @@ export async function findAllUser(): Promise<FindAllUserResponse> {
         redirect: 'follow'
     };
 
-    const res: FindAllUserResponse = await fetch("http://localhost:8000/service/user/v1/", requestOptions)
+    const res: FindAllUserResponse = await fetch(`${HOST}/service/user/v1/`, requestOptions)
         .then(response => response.text())
         .then(result => JSON.parse(result))
         .catch(error => error);

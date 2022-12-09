@@ -96,7 +96,7 @@ export async function find_project_by_project_id(project_id: string): Promise<Fi
         redirect: 'follow'
     };
 
-    const res: FindProjectByProjectIdResponse = await fetch(`http://localhost:8001/service/project/v1/${project_id}`, requestOptions)
+    const res: FindProjectByProjectIdResponse = await fetch(`${HOST}/service/project/v1/${project_id}`, requestOptions)
                     .then(response => response.text())
                     .then(result => JSON.parse(result))
                     .catch(error => error);
