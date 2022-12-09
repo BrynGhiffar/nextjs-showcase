@@ -10,6 +10,7 @@ import { FindUserByIdResponse, findUserById } from "../../clients/user_service"
 import youtube from '../../public/Project/youtube.png'
 import github from '../../public/Project/github.png'
 import website from '../../public/Project/web.png'
+import YouTube, { YouTubeProps } from 'react-youtube'
 
 export default function ProjectPage() {
 
@@ -49,6 +50,20 @@ export default function ProjectPage() {
         run();
     }, [project_id]);
 
+    const onPlayerReady: YouTubeProps['onReady'] = (event) => {
+        // access to player in all event handlers via event.target
+        event.target.pauseVideo();
+    }
+
+    const opts: YouTubeProps['opts'] = {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+            // https://developers.google.com/youtube/player_parameters
+            autoplay: 1,
+        },
+    };
+
     return (
         <div>
 
@@ -81,6 +96,9 @@ export default function ProjectPage() {
 
                 
 
+            </div>
+            <div className={style.youtube_embed}>
+                <YouTube className={style.youtube_video} videoId={project?.youtube_link.substring(32, 43)!} opts={opts} onReady={onPlayerReady} />
             </div>
 
             <Footer />

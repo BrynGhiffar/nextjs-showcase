@@ -51,7 +51,6 @@
                 }
             }
 
-
             .image_holder {
                 width: 50px;
                 height: 50px;
@@ -61,6 +60,26 @@
                 align-items: center;
             }
         }
+    }
+
+}
+
+.youtube_embed {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    margin-right: 100px;
+    margin-left: 100px;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+
+    aspect-ratio: 16/9;
+
+    .youtube_video {
+        margin: auto;
+        height: 100%;
+        width: 100%;
+
     }
 
 }
