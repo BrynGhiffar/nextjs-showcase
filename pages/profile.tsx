@@ -18,6 +18,7 @@ import { find_projects_by_user_id, ProjectData } from "../clients/project_servic
 import { Button, CircularProgress, Skeleton } from "@mui/material";
 import Footer from "../components/footer";
 import { getCurrentUserId } from "../clients/azure_client";
+import { useRouter } from "next/router";
 
 const full_name = "John Doe";
 const semester_batch = "Semester 5, Batch 2025";
@@ -77,6 +78,7 @@ type ProjectCardProps = {
 }
 
 function ProjectCard({ projectData }: ProjectCardProps) {
+    const router = useRouter();
     let poster: StaticImageData | string = noimage;
     if (projectData.poster_image.name !== "") {
         poster = projectData.poster_image.base64;
@@ -97,7 +99,9 @@ function ProjectCard({ projectData }: ProjectCardProps) {
                 <Button
                     variant="outlined" 
                     color="info" 
-                    className={style.margin20px}>Read More</Button>
+                    className={style.margin20px} onClick = {_ => {
+                        router.push(`/project/${projectData.project_id}`)
+                    }}>Read More</Button>
                 </div>
             </div>
         </>
