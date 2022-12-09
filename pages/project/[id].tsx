@@ -11,14 +11,19 @@ import youtube from '../../public/Project/youtube.png'
 import github from '../../public/Project/github.png'
 import website from '../../public/Project/web.png'
 import YouTube, { YouTubeProps } from 'react-youtube'
+import dynamic from "next/dynamic"
+import "@uiw/react-markdown-preview/markdown.css";
+import Link from "next/link"
+
+const MarkdownPreview = dynamic(
+    () => import("@uiw/react-markdown-preview"),
+    {ssr: false}
+);
 
 export default function ProjectPage() {
 
-    const [project, set_project] = useState<ProjectData | null>(null)
-    const [youtube_link, set_youtube_link] = useState<string | null>(null)
-    const [github_link, set_github_link] = useState<string | null>(null)
-    const [website_link, set_website_link] = useState<string | null>(null)
-    const [member_names, set_member_names] = useState<Array<string> | null>(null)
+    const [project, set_project] = useState<ProjectData | null>(null);
+    const [member_names, set_member_names] = useState<Array<string> | null>(null);
 
     const router = useRouter();
     const { id: project_id } = router.query;
@@ -31,8 +36,8 @@ export default function ProjectPage() {
                 console.log(res, project_id)
                 if (res.project !== null) {
                     set_project(_ => res.project);
-                    const members_id = res.project?.members!
-
+                    const members_id = res.project?.members!;
+                    const md_description = res.project?.description!;
                     if (members_id !== undefined) {
                         for (const id of members_id) {
                             console.log("members", id)
@@ -60,45 +65,52 @@ export default function ProjectPage() {
         width: '100%',
         playerVars: {
             // https://developers.google.com/youtube/player_parameters
-            autoplay: 1,
+            autoplay: 0,
         },
     };
 
     return (
-        <div>
+        <div className={style.page_container}>
 
             <Navbar isLoading={false} />
 
-            <div className={style.upper_container}>
+            <div className={style.content_container}>
 
-                <div className={style.left_side}>
-                    <Image src={project?.poster_image.base64!} layout="fill" objectFit="cover" alt="Project Poster" style={{ width: "100%", height: "100%", position: "relative" }} />
-                </div>
-
-                <div className={style.right_side}>
-                    <h1>{project?.name!}</h1>
-                    <h4>{project?.short_description!}</h4>
-                    <p>{project?.description!}</p>
-                    <div className={style.hyperlinks}>
-                        <a href={project?.youtube_link!}><div className={style.image_holder}><Image src={youtube} width={40} height={40} alt="Project Poster" style={{ position: "relative" }} /></div></a>
-                        <a href={project?.github_link!}><div className={style.image_holder}><Image src={github} width={40} height={40} alt="Project Poster" style={{ position: "relative" }} /></div></a>
-                        <a href={project?.youtube_link!}><div className={style.image_holder}><Image src={website} width={40} height={40} alt="Project Poster" style={{ position: "relative" }} /></div></a>
+                <div className={style.details_container}>
+                    <h1 className={style.project_name}>{project?.name!}</h1>
+                    <h4 className={style.project_short_description}>{project?.short_description!}</h4>
+                    <div className={style.member_list}>
+                        {
+                            member_names?.map((member) => {
+                                return (
+                                    <Link 
+                                    key={member.toString()}
+                                    href="/profile">
+                                        <div 
+                                            className={style.member_item}
+                                        >{member.toString()}</div>
+                                    </Link>
+                                )
+                            })
+                        }
                     </div>
-                    <p>Members:</p>
-                    <ul>
-                        {member_names?.map((member) => {
-                            return (
-                                <li>{member.toString()}</li>
-                            )
-                        })}
-                    </ul>
                 </div>
-
-                
-
-            </div>
-            <div className={style.youtube_embed}>
-                <YouTube className={style.youtube_video} videoId={project?.youtube_link.substring(32, 43)!} opts={opts} onReady={onPlayerReady} />
+                <div className={style.upper_container}>
+                    <div className={style.left_side}>
+                        <Image src={project?.poster_image.base64!} layout="fill" objectFit="contain" alt="Project Poster"/>
+                    </div>
+                    <div className={style.right_side}>
+                        <YouTube className={style.youtube_video} videoId={project?.youtube_link.substring(32, 43)!} opts={opts} onReady={onPlayerReady} />
+                    </div>
+                </div>
+                <div className={style.lower_container}>
+                        <MarkdownPreview source={project?.description!} warpperElement={{"data-color-mode": "light"}}/>
+                        <div className={style.hyperlinks}>
+                            <a href={project?.youtube_link!} target="_blank" rel="noreferrer"><div className={style.image_holder}><Image src={youtube} width={40} height={40} alt="Project Poster" /></div></a>
+                            <a href={project?.github_link!} target="_blank" rel="noreferrer"><div className={style.image_holder}><Image src={github} width={40} height={40} alt="Project Poster" /></div></a>
+                            <a href={project?.youtube_link!} target="_blank" rel="noreferrer"><div className={style.image_holder}><Image src={website} width={40} height={40} alt="Project Poster" /></div></a>
+                        </div>
+                </div>
             </div>
 
             <Footer />
