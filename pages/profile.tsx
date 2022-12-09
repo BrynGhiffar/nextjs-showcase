@@ -7,7 +7,7 @@ import plus_sign from "../public/plus-sign.png";
 import Image from "next/image";
 import { StaticImageData } from "next/image";
 import Link from "next/link";
-import { ChangeEvent, SetStateAction, useState, Dispatch, useEffect, useRef } from "react";
+import { ChangeEvent, SetStateAction, useState, Dispatch, useEffect, useRef, Component } from "react";
 import { IPublicClientApplication, AccountInfo } from '@azure/msal-browser';
 import { useMsal } from '@azure/msal-react';
 import { loginRequest } from "../azureAuth.config";
@@ -15,8 +15,9 @@ import { callMsGraph } from "../azureGraph.config";
 import { useIsAuthenticated } from '@azure/msal-react';
 import { updateDescription, findUserByMsftProvider, UserData, EMPTY_USER_DATA } from "../clients/user_service";
 import { find_projects_by_user_id, ProjectData } from "../clients/project_service";
-import { Button, CircularProgress } from "@mui/material";
+import { Button, CircularProgress, Skeleton } from "@mui/material";
 import Footer from "../components/footer";
+import { getCurrentUserId } from "../clients/azure_client";
 
 const full_name = "John Doe";
 const semester_batch = "Semester 5, Batch 2025";
@@ -77,8 +78,8 @@ type ProjectCardProps = {
 
 function ProjectCard({ projectData }: ProjectCardProps) {
     let poster: StaticImageData | string = noimage;
-    if (projectData.poster_image !== "") {
-        poster = projectData.poster_image;
+    if (projectData.poster_image.name !== "") {
+        poster = projectData.poster_image.base64;
     }
     return (
         <>
@@ -113,21 +114,6 @@ function CreateProjectCard() {
             </div>
         </Link>
     </>)
-}
-
-async function getCurrentUserId(instance: IPublicClientApplication, accounts: AccountInfo[]): Promise<string> {
-    const account = accounts[0];
-    if (account === undefined) {
-      console.log("Not logged in");
-      return "";
-    }
-    const response = instance.acquireTokenSilent({
-      ...loginRequest,
-      account
-    });
-    const accessToken = (await response).accessToken;
-    const graphResponse = await callMsGraph(accessToken);
-    return graphResponse.id as string;
 }
 
 type ProfileProps = {
@@ -170,25 +156,52 @@ export default function Profile(profileProps: ProfileProps) {
 
     const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
 
-    return (<>
+    return (<div className={style.outer_container}>
         <Head>
             <title>Project Showcase - Profile Page</title>
         </Head>
-        <Navbar isAuthenticated={isAuthenticated}/>
+        <Navbar isLoading={isLoading}/>
         {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
         <div className={style.container}>
-            <div className={style.profile_container}>
-                <div className={style.image_profile}>
-                    <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
+                <div className={style.profile_container}>
+                    {
+                        isLoading ? (
+                            <Skeleton variant="circular" height="250px" width="250px" animation="wave">
+                            </Skeleton>
+                        ) : (
+                            <div className={style.image_profile}>
+                                <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
+                            </div>
+                        )
+                    }
+                    <div className={style.description_profile}>
+                        {
+                            isLoading ? (
+                                <Skeleton variant="rounded" height={"8vh"} width={"50%"}>
+                                </Skeleton>
+                            ) : (
+                                <h1>{userData.name}</h1>
+                            )
+                        }
+                        {
+                            isLoading ? (
+                                <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"5vh"} width={"50%"}>
+                                </Skeleton>
+                            ) : (
+                                <p>Semester {userData.current_semester}. Batch {userData.graduation_year}</p>
+                            )
+                        }
+                        {
+                            isLoading ? (
+                                <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"15vh"} width={"100%"}>
+                                </Skeleton>
+                            ) : (
+                                <ProfileDescription user_id={userData.user_id} description={userData.description}/>
+                            )
+                        }
+                    </div>
                 </div>
-                <div className={style.description_profile}>
-                    <h1>{userData.name}</h1>
-                    <p>Semester {userData.current_semester}. Batch {userData.graduation_year}</p>
-                    <ProfileDescription user_id={userData.user_id} description={userData.description}/>
-                </div>
-            </div>
             <div>
-                <h1>Projects</h1>
                 <div className={style.separator}/>
                 <div className={style.project_card_container}>
                     {
@@ -199,5 +212,5 @@ export default function Profile(profileProps: ProfileProps) {
             </div>
         </div>
         <Footer/>
-    </>);
+    </div>);
 }
