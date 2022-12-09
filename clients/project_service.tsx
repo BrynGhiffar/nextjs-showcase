@@ -1,16 +1,43 @@
 const HOST = "http://localhost:8001";
 
+export type ProjectDataFile = {
+    name: string,
+    base64: string,
+    ext: string,
+    size: string
+};
+
 export type ProjectData = {
     "project_id": string,
     "class_id": string,
     "name": string,
     "members": string[],
-    "poster_image": string,
-    "report": string,
+    "poster_image": ProjectDataFile,
+    "report": ProjectDataFile,
     "short_description": string,
     "description": string,
     "youtube_link": string,
     "github_link": string
+};
+
+export const EMPTY_PROJECT_DATA_FILE = {
+    name: "",
+    base64: "",
+    ext: "",
+    size: ""
+};
+
+export const EMPTY_PROJECT_DATA = {
+    "project_id": "",
+    "class_id": "",
+    "name": "",
+    "members": [],
+    "poster_image": EMPTY_PROJECT_DATA_FILE,
+    "report": EMPTY_PROJECT_DATA_FILE,
+    "short_description": "",
+    "description": "",
+    "youtube_link": "",
+    "github_link": ""
 };
 
 export type CreateProjectResponse = {
@@ -21,6 +48,11 @@ export type CreateProjectResponse = {
 export type FindProjectsByUserIdResponse = {
     message: string,
     projects: ProjectData[] | null
+};
+
+export type FindProjectByProjectIdResponse = {
+    message: string,
+    project: ProjectData | null
 };
 
 export async function create_project(projectData: ProjectData): Promise<CreateProjectResponse> {
@@ -56,5 +88,17 @@ export async function find_projects_by_user_id(user_id: string): Promise<FindPro
             .then(result => JSON.parse(result) as FindProjectsByUserIdResponse)
             .catch(error => error);
     return res;
-    
+}
+
+export async function find_project_by_project_id(project_id: string): Promise<FindProjectByProjectIdResponse> {
+    const requestOptions: RequestInit = {
+        method: 'GET',
+        redirect: 'follow'
+    };
+
+    const res: FindProjectByProjectIdResponse = await fetch(`http://localhost:8001/service/project/v1/${project_id}`, requestOptions)
+                    .then(response => response.text())
+                    .then(result => JSON.parse(result))
+                    .catch(error => error);
+    return res;
 }
