@@ -1,4 +1,5 @@
-const HOST = "http://localhost:8001";
+import { PROJECTSERVICE_HOST } from "../env";
+const HOST = PROJECTSERVICE_HOST;
 
 export type ProjectDataFile = {
     name: string,

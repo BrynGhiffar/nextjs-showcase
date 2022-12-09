@@ -1,4 +1,6 @@
-const HOST = "http://localhost:8000";
+import { USERSERVICE_HOST } from "../env";
+
+const HOST = USERSERVICE_HOST;
 
 export type UpdateUserDescriptionRequest = {
     user_id: string,
