@@ -7,7 +7,7 @@ import Navbar from "../components/navbar";
 const Home: NextPage = () => {
     return (
     <div>
-      <Navbar isAuthenticated={true}/>
+      <Navbar isLoading={false}/>
       <main className={styles.helloworld}>
         This page is still a work in progress...
       </main>
