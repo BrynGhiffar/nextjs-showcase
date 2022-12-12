@@ -91,7 +91,7 @@ export default function ProjectPage() {
                     color="info"
                     onClick={_ => {
                         router.push(`/profiles/${item[0]}`)
-                    }}>{item[1].toString() + item[0].toString()}</Button>);          
+                    }}>{item[1].toString()}</Button>);          
         }
     }
 
