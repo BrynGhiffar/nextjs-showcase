@@ -20,10 +20,6 @@ import Footer from "../../components/footer";
 import { getCurrentUserId } from "../../clients/azure_client";
 import { useRouter } from "next/router";
 
-const full_name = "John Doe";
-const semester_batch = "Semester 5, Batch 2025";
-const current_description = "Hello, my name is John Doe";
-
 
 function handleChangeDescription(event: ChangeEvent<HTMLTextAreaElement>, state: string, setter: Dispatch<SetStateAction<string>>) {
     const new_description = event.target.value;

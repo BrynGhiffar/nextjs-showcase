@@ -38,7 +38,6 @@ export default function ProjectPage() {
 
             if (typeof project_id === "string") {
                 const res = await find_project_by_project_id(project_id);
-                console.log(res, project_id)
                 if (res.project !== null) {
                     set_project(_ => res.project);
                     const members_id = res.project?.members!;
@@ -47,7 +46,6 @@ export default function ProjectPage() {
                         for (const id of members_id) {
                             const temp: string[] = [];
 
-                            console.log("members", id)
                             const response = await findUserById(id);
                             if (response.user != null) {
                                 members.push(response.user.name);
@@ -86,14 +84,14 @@ export default function ProjectPage() {
     var member_links = [];
     if (members !== null) {
         for (var i = 0; i < members.length; i++) {
-            var item = members[i];
-            member_links.push(
-                <Button className={style.member_item}
+            const item = members[i];
+            member_links[i] = (
+                    <Button className={style.member_item}
                     variant="outlined"
                     color="info"
                     onClick={_ => {
                         router.push(`/profiles/${item[0]}`)
-                    }}>{item[1].toString()}</Button>);
+                    }}>{item[1].toString() + item[0].toString()}</Button>);          
         }
     }
 
