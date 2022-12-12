@@ -14,23 +14,28 @@ import YouTube, { YouTubeProps } from 'react-youtube'
 import dynamic from "next/dynamic"
 import "@uiw/react-markdown-preview/markdown.css";
 import Link from "next/link"
+import { Button, CircularProgress, Skeleton } from "@mui/material";
 
 const MarkdownPreview = dynamic(
     () => import("@uiw/react-markdown-preview"),
-    {ssr: false}
+    { ssr: false }
 );
 
 export default function ProjectPage() {
 
     const [project, set_project] = useState<ProjectData | null>(null);
     const [member_names, set_member_names] = useState<Array<string> | null>(null);
-
+    const [member_ids, set_member_ids] = useState<Array<string> | null>(null);
+    const [members, set_members] = useState<Array<Array<string>> | null>(null);
     const router = useRouter();
     const { id: project_id } = router.query;
 
     useEffect(() => {
         const run = async () => {
             const members: string[] = [];
+            const member_ids: string[] = [];
+            const final: string[][] = [];
+
             if (typeof project_id === "string") {
                 const res = await find_project_by_project_id(project_id);
                 console.log(res, project_id)
@@ -40,13 +45,22 @@ export default function ProjectPage() {
                     const md_description = res.project?.description!;
                     if (members_id !== undefined) {
                         for (const id of members_id) {
+                            const temp: string[] = [];
+
                             console.log("members", id)
                             const response = await findUserById(id);
                             if (response.user != null) {
                                 members.push(response.user.name);
+                                member_ids.push(response.user.user_id);
+                                temp.push(response.user.user_id);
+                                temp.push(response.user.name);
+                                final.push(temp);
+
                             }
                         }
                         set_member_names(_ => members);
+                        set_member_ids(_ => member_ids);
+                        set_members(_ => final);
                     }
                 }
             }
@@ -69,6 +83,21 @@ export default function ProjectPage() {
         },
     };
 
+    var member_links = [];
+    if (members !== null) {
+        for (var i = 0; i < members.length; i++) {
+            var item = members[i];
+            member_links.push(
+                <Button className={style.member_item}
+                    variant="outlined"
+                    color="info"
+                    onClick={_ => {
+                        router.push(`/profiles/${item[0]}`)
+                    }}>{item[1].toString()}</Button>);
+        }
+    }
+
+
     return (
         <div className={style.page_container}>
 
@@ -80,36 +109,25 @@ export default function ProjectPage() {
                     <h1 className={style.project_name}>{project?.name!}</h1>
                     <h4 className={style.project_short_description}>{project?.short_description!}</h4>
                     <div className={style.member_list}>
-                        {
-                            member_names?.map((member) => {
-                                return (
-                                    <Link 
-                                    key={member.toString()}
-                                    href="/profile">
-                                        <div 
-                                            className={style.member_item}
-                                        >{member.toString()}</div>
-                                    </Link>
-                                )
-                            })
-                        }
+
+                        <div>{member_links}</div>
                     </div>
                 </div>
                 <div className={style.upper_container}>
                     <div className={style.left_side}>
-                        <Image src={project?.poster_image.base64!} layout="fill" objectFit="contain" alt="Project Poster"/>
+                        <Image src={project?.poster_image.base64!} layout="fill" objectFit="contain" alt="Project Poster" />
                     </div>
                     <div className={style.right_side}>
                         <YouTube className={style.youtube_video} videoId={project?.youtube_link.substring(32, 43)!} opts={opts} onReady={onPlayerReady} />
                     </div>
                 </div>
                 <div className={style.lower_container}>
-                        <MarkdownPreview source={project?.description!} warpperElement={{"data-color-mode": "light"}}/>
-                        <div className={style.hyperlinks}>
-                            <a href={project?.youtube_link!} target="_blank" rel="noreferrer"><div className={style.image_holder}><Image src={youtube} width={40} height={40} alt="Project Poster" /></div></a>
-                            <a href={project?.github_link!} target="_blank" rel="noreferrer"><div className={style.image_holder}><Image src={github} width={40} height={40} alt="Project Poster" /></div></a>
-                            <a href={project?.youtube_link!} target="_blank" rel="noreferrer"><div className={style.image_holder}><Image src={website} width={40} height={40} alt="Project Poster" /></div></a>
-                        </div>
+                    <MarkdownPreview source={project?.description!} warpperElement={{ "data-color-mode": "light" }} />
+                    <div className={style.hyperlinks}>
+                        <a href={project?.youtube_link!} target="_blank" rel="noreferrer"><div className={style.image_holder}><Image src={youtube} width={40} height={40} alt="Project Poster" /></div></a>
+                        <a href={project?.github_link!} target="_blank" rel="noreferrer"><div className={style.image_holder}><Image src={github} width={40} height={40} alt="Project Poster" /></div></a>
+                        <a href={project?.youtube_link!} target="_blank" rel="noreferrer"><div className={style.image_holder}><Image src={website} width={40} height={40} alt="Project Poster" /></div></a>
+                    </div>
                 </div>
             </div>
 
