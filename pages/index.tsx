@@ -5,6 +5,7 @@ import Navbar from "../components/navbar";
 import style from "../styles/profile.module.scss";
 import { useEffect, useState } from "react";
 import ProjectCard from "../components/projectCard";
+import { CircularProgress } from "@mui/material";
 
 const Home: NextPage = () => {
 
@@ -30,7 +31,8 @@ const Home: NextPage = () => {
 
     return (
     <div>
-      <Navbar isLoading={false}/>
+       <Navbar isLoading={isLoading}/>
+        {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
       <main className={styles.helloworld}>
         All of the projects, hopefully....
       </main>
