@@ -21,6 +21,7 @@ const Home: NextPage = () => {
       setIsLoading(_ => true);
 
       const allProjs = await find_all_projects();
+      console.log(allProjs.projects)
       if (allProjs.projects !== null)
       {
         const projs = allProjs.projects;
@@ -33,7 +34,10 @@ const Home: NextPage = () => {
       {
         for (var i = (currentPage - 1) * projectsPerPage; i < currentPage * projectsPerPage; i++)
         {
-          temp.push(allProjs.projects[i]);
+          if (allProjs.projects[i] !== undefined)
+            temp.push(allProjs.projects[i]);
+          else
+            break
         }
       }
       setShownProjects(_ => temp);

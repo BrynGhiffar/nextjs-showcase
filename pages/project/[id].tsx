@@ -3,9 +3,8 @@ import Footer from "../../components/footer"
 import Image from 'next/image'
 import style from "../../styles/project.id.module.scss"
 import { useEffect, useState } from "react"
-import { find_project_by_project_id } from "../../clients/project_service"
+import { find_project_by_project_id,  ProjectData} from "../../clients/project_service"
 import { useRouter } from "next/router"
-import { ProjectData } from "../../clients/project_service"
 import { FindUserByIdResponse, findUserById } from "../../clients/user_service"
 import youtube from '../../public/Project/youtube.png'
 import github from '../../public/Project/github.png'
@@ -13,7 +12,6 @@ import website from '../../public/Project/web.png'
 import YouTube, { YouTubeProps } from 'react-youtube'
 import dynamic from "next/dynamic"
 import "@uiw/react-markdown-preview/markdown.css";
-import Link from "next/link"
 import { Button, CircularProgress, Skeleton } from "@mui/material";
 
 const MarkdownPreview = dynamic(
