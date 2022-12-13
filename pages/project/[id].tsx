@@ -22,19 +22,20 @@ const MarkdownPreview = dynamic(
 );
 
 export default function ProjectPage() {
+    type UserNameId = {
+        name: string,
+        id: string
+    };
 
     const [project, set_project] = useState<ProjectData | null>(null);
-    const [member_names, set_member_names] = useState<Array<string> | null>(null);
-    const [member_ids, set_member_ids] = useState<Array<string> | null>(null);
-    const [members, set_members] = useState<Array<Array<string>> | null>(null);
+    const [members, set_members] = useState<Array<UserNameId> | null>(null);
     const router = useRouter();
     const { id: project_id } = router.query;
 
+
     useEffect(() => {
         const run = async () => {
-            const members: string[] = [];
-            const member_ids: string[] = [];
-            const final: string[][] = [];
+            const final: UserNameId[] = [];
 
             if (typeof project_id === "string") {
                 const res = await find_project_by_project_id(project_id);
@@ -44,20 +45,18 @@ export default function ProjectPage() {
                     const md_description = res.project?.description!;
                     if (members_id !== undefined) {
                         for (const id of members_id) {
-                            const temp: string[] = [];
+                            const userNameId: UserNameId = {
+                                name: "",
+                                id: ""
+                            }
 
                             const response = await findUserById(id);
                             if (response.user != null) {
-                                members.push(response.user.name);
-                                member_ids.push(response.user.user_id);
-                                temp.push(response.user.user_id);
-                                temp.push(response.user.name);
-                                final.push(temp);
-
+                                userNameId.id = response.user.user_id;
+                                userNameId.name = response.user.name;
+                                final.push(userNameId);
                             }
                         }
-                        set_member_names(_ => members);
-                        set_member_ids(_ => member_ids);
                         set_members(_ => final);
                     }
                 }
@@ -86,12 +85,12 @@ export default function ProjectPage() {
         for (var i = 0; i < members.length; i++) {
             const item = members[i];
             member_links[i] = (
-                    <Button className={style.member_item}
+                <Button className={style.member_item}
                     variant="outlined"
                     color="info"
                     onClick={_ => {
-                        router.push(`/profiles/${item[0]}`)
-                    }}>{item[1].toString()}</Button>);          
+                        router.push(`/profiles/${item.id}`)
+                    }}>{item.name.toString()}</Button>);
         }
     }
 

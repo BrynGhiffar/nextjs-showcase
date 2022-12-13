@@ -115,7 +115,7 @@ export async function find_all_projects(): Promise<FindAllProjectsResponse> {
         redirect: 'follow'
     };
 
-    const res: FindAllProjectsResponse = await fetch(`${HOST}/service/project/v1/project/all`, requestOptions)
+    const res: FindAllProjectsResponse = await fetch(`${HOST}/service/project/v1/`, requestOptions)
                     .then(response => response.text())
                     .then(result => JSON.parse(result))
                     .catch(error => error);

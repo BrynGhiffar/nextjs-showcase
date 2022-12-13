@@ -33,7 +33,6 @@ type ProfileDescriptionProps = {
 
 function ProfileDescription(profileDescriptionProps: ProfileDescriptionProps) {
     const { user_id, description: propsDescription } = profileDescriptionProps;
-    const [editting, setEditting] = useState(false);
     const [descriptionBuffer, setDescriptionBuffer] = useState("");
     const [description, setDescription] = useState("");
 
