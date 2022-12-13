@@ -17,6 +17,7 @@ export type NavbarProps = {
 export default function Navbar({ isLoading }: NavbarProps) {
 
     const { instance, accounts } = useMsal();
+    const isAuthenticated = useIsAuthenticated();
     const router = useRouter();
     const account = accounts[0];
 
@@ -27,10 +28,8 @@ export default function Navbar({ isLoading }: NavbarProps) {
         });
     });
 
-    useEffect(() => {
-        if (account === undefined) {
-            router.push("/");
-        }
+    const handleLogin = ( () => {
+        router.push("/login")
     })
 
     return (<>
@@ -42,23 +41,23 @@ export default function Navbar({ isLoading }: NavbarProps) {
       <div className={navbarStyle.outer_container}>
         <div className={navbarStyle.container}>
             <div className={navbarStyle.title}>
-                <Link href="/home">
+                <Link href="/">
                     <Image src={logo} alt="binus logo" height="50" width="81.3" className={navbarStyle.logo}/>
                 </Link>
             </div>
             <div className={navbarStyle.options_container}>
                 <div className={navbarStyle.options}>
-                    <Link href="/home">
+                    <Link href="/">
                         Home
                     </Link>
                 </div>
-                <div className={navbarStyle.options}>
-                    <Link href="/profile">
+                {isAuthenticated ? <div className={navbarStyle.options}>
+                 <Link href="/profile">
                         Profile
                     </Link>
-                </div>
-                <div className={navbarStyle.options} onClick={handleLogout}>
-                    Logout
+                </div> : <div></div>}
+                <div className={navbarStyle.options} onClick={isAuthenticated ? handleLogout : handleLogin}>
+                    {isAuthenticated ? <div> Logout </div> : <div> Login </div>}
                 </div>
             </div>
         </div>

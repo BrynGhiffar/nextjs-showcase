@@ -1,78 +1,51 @@
-import type { NextPage } from 'next'
-import { useMsal } from '@azure/msal-react';
-import { loginRequest } from '../azureAuth.config';
-import { useEffect } from 'react';
-import { callMsGraph } from '../azureGraph.config';
-import { useIsAuthenticated } from '@azure/msal-react';
-import { useRouter } from 'next/router';
-import style from "../styles/login.module.scss"
-import microsoftIcon from "../public/microsoft.png";
-import Image from "next/image";
-import {getCurrentUser} from "../clients/azure_service";
-import {findCreateUserMsftProviderId} from "../clients/user_service"
+import type { NextPage } from "next"
+import { find_all_projects, ProjectData } from "../clients/project_service";
+import styles from '../styles/home.module.scss';
+import Navbar from "../components/navbar";
+import style from "../styles/profile.module.scss";
+import { useEffect, useState } from "react";
+import ProjectCard from "../components/projectCard";
+import { CircularProgress } from "@mui/material";
 
-const Login: NextPage = () => {
-  // the index page will be the login page
-  const { instance, accounts } = useMsal();
-  const isAuthenticated = useIsAuthenticated();
-  const router = useRouter();
-  const handleLogin = () => {
-    instance.loginRedirect(loginRequest)
-      .catch(e => console.log(e));
-  };
-  const handleLogout = () => {
-    instance.logoutRedirect({
-        postLogoutRedirectUri: "/",
-    });
-  };
+const Home: NextPage = () => {
 
-  const handleFetchGraph = async () => {
-    const account = accounts[0];
-    if (account === undefined) {
-      console.log("Not logged in");
-      return;
-    }
-    const response = instance.acquireTokenSilent({
-      ...loginRequest,
-      account
-    });
-    const accessToken = (await response).accessToken;
-    const graphResponse = await callMsGraph(accessToken);
-    console.log(graphResponse);
-  }
+  const [userProjects, setUserProjects] = useState<ProjectData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
 
   useEffect(() => {
-    const run = async() =>{
-      if (isAuthenticated) {
-        const user = await getCurrentUser(instance, accounts);
-        if (user !== null){
-          const res = await findCreateUserMsftProviderId(user.providerId,user.username, user.useremail);
-          console.log(res)
-          router.push("/home");
+    
 
-        }
+    const run = async () => {
+      setIsLoading(_ => true);
+      const allProjs = await find_all_projects();
+      if (allProjs.projects !== null)
+      {
+        const projs = allProjs.projects;
+        setUserProjects(_ => projs);
       }
-    }
-    run();
-  }, [isAuthenticated]);
+      setIsLoading(_ => false);
+  };
+  run();
+  }, []);
 
-  return (
-    <div className={style.container}>
-      <div className={style.container_bg}></div>
-      <div className={style.wrapper}>
-        <h1>Project Showcase</h1>
-        <h1>Login</h1>
-        <div className={style.button_wrapper}>
-          <button className={style.login} onClick={handleLogin}>
-            <Image src={microsoftIcon} height={16} width={16}/>
-            <code>     </code>Microsoft
-          </button>
-        </div>
-        {/* <button onClick={handleLogout}>Logout</button> */}
-        {/* <button onClick={handleFetchGraph}>Log User Data</button> */}
+    return (
+    <div>
+       <Navbar isLoading={isLoading}/>
+        {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
+      <main className={styles.helloworld}>
+        All of the projects, hopefully....
+      </main>
+      <div>
+        <div className={style.separator}/>
+          <div className={style.project_card_container}>
+              {
+                  userProjects?.map(projectToProjectCard)
+              }
+          </div>
       </div>
     </div>
-  )
+    
+    )
 }
-
-export default Login;
+export default Home;
