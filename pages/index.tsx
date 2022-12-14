@@ -6,6 +6,7 @@ import style from "../styles/profile.module.scss";
 import { useEffect, useState } from "react";
 import ProjectCard from "../components/projectCard";
 import { CircularProgress } from "@mui/material";
+import Search from "../components/searchbar";
 
 const Home: NextPage = () => {
 
@@ -14,7 +15,7 @@ const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const projectsPerPage = 10;
+  const projectsPerPage = 2;
 
   useEffect(() => {
     const run = async () => {
@@ -50,6 +51,7 @@ const Home: NextPage = () => {
   return (
   <div>
       <Navbar isLoading={isLoading}/>
+      <Search/>
       {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
     <main className={styles.helloworld}>
       All of the projects, hopefully....
