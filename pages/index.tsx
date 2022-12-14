@@ -87,7 +87,7 @@ const Home: NextPage = () => {
           </div>
       </div>
       <Pagination
-        count={2}
+        count={Math.ceil(userProjects.length / projectsPerPage )}
         variant='outlined'
         color='primary'
         className='pagination'
