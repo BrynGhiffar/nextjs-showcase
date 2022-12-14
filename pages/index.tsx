@@ -3,9 +3,10 @@ import { find_all_projects, ProjectData } from "../clients/project_service";
 import styles from '../styles/home.module.scss';
 import Navbar from "../components/navbar";
 import style from "../styles/profile.module.scss";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import ProjectCard from "../components/projectCard";
 import { CircularProgress } from "@mui/material";
+import { Pagination } from '@mui/material';
 
 const Home: NextPage = () => {
 
@@ -14,7 +15,26 @@ const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const projectsPerPage = 10;
+  const projectsPerPage = 5;
+
+  const handlePaginationChange = (_event: any, value: SetStateAction<number>) =>
+  {
+    setIsLoading(_ => true);
+    setCurrentPage(value);
+    const temp: ProjectData[] = [];
+    if (userProjects !== null)
+      {
+        for (var i = (currentPage - 1) * projectsPerPage; i < currentPage * projectsPerPage; i++)
+        {
+          if (userProjects[i] !== undefined)
+            temp.push(userProjects[i]);
+          else
+            break;
+        }
+      }
+      setShownProjects(_ => temp);
+      setIsLoading(_ => false);
+  };
 
   useEffect(() => {
     const run = async () => {
@@ -51,17 +71,25 @@ const Home: NextPage = () => {
   <div>
       <Navbar isLoading={isLoading}/>
       {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
-    <main className={styles.helloworld}>
-      All of the projects, hopefully....
-    </main>
-    <div>
-      <div className={style.separator}/>
-        <div className={style.project_card_container}>
-            {
-                shownProjects?.map(projectToProjectCard)
-            }
-        </div>
-    </div>
+      <main className={styles.helloworld}>
+        All of the projects, hopefully....
+      </main>
+      <div>
+        <div className={style.separator}/>
+          <div className={style.project_card_container}>
+              {
+                  shownProjects?.map(projectToProjectCard)
+              }
+          </div>
+      </div>
+      <Pagination
+        count={2}
+        variant='outlined'
+        color='primary'
+        className='pagination'
+        page={currentPage}
+        onChange={handlePaginationChange}
+      />
   </div>
   
   )
