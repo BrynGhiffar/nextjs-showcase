@@ -18,24 +18,11 @@ const Home: NextPage = () => {
   const projectsPerPage = 5;
 
   const handlePaginationChange = (_event: any, value: SetStateAction<number>) =>
-  {
-    setIsLoading(_ => true);
-    setCurrentPage(value);
-    const temp: ProjectData[] = [];
-    if (userProjects !== null)
-      {
-        for (var i = (currentPage - 1) * projectsPerPage; i < currentPage * projectsPerPage; i++)
-        {
-          if (userProjects[i] !== undefined)
-            temp.push(userProjects[i]);
-          else
-            break;
-        }
-      }
-      setShownProjects(_ => temp);
-      setIsLoading(_ => false);
+  { 
+    setCurrentPage(value); 
   };
 
+  // this is for first load
   useEffect(() => {
     const run = async () => {
       setIsLoading(_ => true);
@@ -67,6 +54,23 @@ const Home: NextPage = () => {
     run();
   }, []);
 
+  useEffect(() => {
+    setIsLoading(_ => true);
+    const temp: ProjectData[] = [];
+    if (userProjects !== null)
+      {
+        for (var i = (currentPage - 1) * projectsPerPage; i < currentPage * projectsPerPage; i++)
+        {
+          if (userProjects[i] !== undefined)
+            temp.push(userProjects[i]);
+          else
+            break;
+        }
+      }
+      setShownProjects(_ => temp);
+      setIsLoading(_ => false);
+  }, [currentPage]);
+
   return (
   <div>
       <Navbar isLoading={isLoading}/>
@@ -91,7 +95,6 @@ const Home: NextPage = () => {
         onChange={handlePaginationChange}
       />
   </div>
-  
   )
 }
 export default Home;
