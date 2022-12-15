@@ -3,7 +3,9 @@ import {TextField, InputAdornment, IconButton} from "@mui/material";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SearchIcon from '@mui/icons-material/Search';
 
-const Search = () => (<>
+export default function Search (){
+
+  return (<>
   <div className={searchStyle.container}>
     <div className={searchStyle.title}>
       <h1> All Projects </h1>
@@ -22,8 +24,6 @@ const Search = () => (<>
               </InputAdornment>
             )
           }} />
-
-
         <div className={searchStyle.search_container}>
         </div>
       </div>
@@ -32,14 +32,11 @@ const Search = () => (<>
           <FilterAltIcon></FilterAltIcon>
         </div>
       </div>
-
-
-
     </div>
   </div>
 
 </>)
-  
-  export default Search;
+}
+
 
 

@@ -18,6 +18,7 @@
     .search_container {
         display: flex;
         justify-content: center;
+
         .search {
             &:hover {
                 cursor: pointer;
@@ -26,9 +27,9 @@
             }
             .button{
                 width: 40px;
-                height: 10px;
+                height: 5px;
             }
-            border-radius: 20px;
+            border-radius: 10px;
             background-color: #EEEE;
             margin: auto 1rem;
             padding: 5px 20px;
