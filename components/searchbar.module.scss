@@ -1,0 +1,36 @@
+.title {
+    font-size: 16px;
+    font-weight: bold;
+    h1{
+        font-weight: 300;
+
+    }
+}
+
+
+
+.container{
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 3fr 1fr;
+    padding: 80px 5%;
+
+    .search_container {
+        display: flex;
+        justify-content: center;
+        .search {
+            &:hover {
+                cursor: pointer;
+                outline: none;
+                background-color: #EEEE;
+            }
+            border-radius: 20px;
+            background-color: #EEEE;
+            margin: auto 1rem;
+            padding: 5px 20px;
+            border: none;
+            outline: none;
+        }
+    }
+
+}

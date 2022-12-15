@@ -6,46 +6,66 @@ import style from "../styles/profile.module.scss";
 import { useEffect, useState } from "react";
 import ProjectCard from "../components/projectCard";
 import { CircularProgress } from "@mui/material";
+import Search from "../components/searchbar";
 
 const Home: NextPage = () => {
 
   const [userProjects, setUserProjects] = useState<ProjectData[]>([]);
+  const [shownProjects, setShownProjects] = useState<ProjectData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const projectsPerPage = 2;
 
   useEffect(() => {
-    
-
     const run = async () => {
       setIsLoading(_ => true);
+
       const allProjs = await find_all_projects();
+      console.log(allProjs.projects)
       if (allProjs.projects !== null)
       {
         const projs = allProjs.projects;
         setUserProjects(_ => projs);
       }
+
+      const temp: ProjectData[] = [];
+
+      if (allProjs.projects !== null)
+      {
+        for (var i = (currentPage - 1) * projectsPerPage; i < currentPage * projectsPerPage; i++)
+        {
+          if (allProjs.projects[i] !== undefined)
+            temp.push(allProjs.projects[i]);
+          else
+            break
+        }
+      }
+      setShownProjects(_ => temp);
       setIsLoading(_ => false);
-  };
-  run();
+    }
+    
+    run();
   }, []);
 
-    return (
+  return (
+  <div>
+      <Navbar isLoading={isLoading}/>
+      <Search/>
+      {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
+    <main className={styles.helloworld}>
+      All of the projects, hopefully....
+    </main>
     <div>
-       <Navbar isLoading={isLoading}/>
-        {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
-      <main className={styles.helloworld}>
-        All of the projects, hopefully....
-      </main>
-      <div>
-        <div className={style.separator}/>
-          <div className={style.project_card_container}>
-              {
-                  userProjects?.map(projectToProjectCard)
-              }
-          </div>
-      </div>
+      <div className={style.separator}/>
+        <div className={style.project_card_container}>
+            {
+                shownProjects?.map(projectToProjectCard)
+            }
+        </div>
     </div>
-    
-    )
+  </div>
+  
+  )
 }
 export default Home;
