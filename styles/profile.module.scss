@@ -165,3 +165,61 @@ $debug-mode: false;
 .border_circle {
     border-radius: 9999px;
 }
+
+@media (max-width:800px ) {
+
+.outer_container {
+
+    background-color: lighten(lightgrey, 12%);
+    overflow: hidden;
+
+    .container {
+        outline: 0.1px solid gray;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+        margin: 0px 10px;
+        padding: 50px;
+        height: 100%;
+        overflow: visible;
+        background-color: white;
+        @if $debug-mode {
+            outline: 1px solid blue;
+        }
+    }
+}
+
+.image_profile {
+    margin-top: 30px;
+    size: 100%;
+    display: block;
+    justify-content: center;
+    @if $debug-mode {
+        outline: 1px solid red;
+    }
+}
+.project_card_container {
+    @if $debug-mode {
+        outline: 1px solid red;
+    }
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    .project_card {
+        $base-color: lighten(gray, 40%);
+        $hover-color: lighten(gray, 35%);
+        $border-radius: 7px;
+        background-color: white;
+        width: 100px;
+        border-radius: $border-radius;
+        position: relative;
+        top: 0px;
+        transition-property: top, background-color;
+        transition-duration: 300ms;
+        transition-timing-function: ease-out;
+        min-height: 150px;
+        overflow-y: hidden;
+    }
+}
+
+}
+    
