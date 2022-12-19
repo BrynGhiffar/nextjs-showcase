@@ -2,11 +2,23 @@ import searchStyle from "./searchbar.module.scss";
 import {TextField, InputAdornment, IconButton} from "@mui/material";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SearchIcon from '@mui/icons-material/Search';
-import {find_projects_by_name} from "../clients/project_service";
+import { find_projects_by_name } from "../clients/project_service";
+import React, { useState } from 'react';
+
 
 
 
 export default function Search (){
+  
+  const [searchTerm, setSearchTerm] = useState('');
+
+  function handleSearchClick() {
+    find_projects_by_name
+  }
+  
+  function handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setSearchTerm(event.target.value);
+  }
 
   return (<>
   <div className={searchStyle.container}>
@@ -16,6 +28,9 @@ export default function Search (){
     <div className={searchStyle.search_container}>
       <div className={searchStyle.search}>
         <TextField
+          onClick={handleSearchClick}
+          onChange={handleSearchChange}
+          value={searchTerm}
           type="text"
           variant="standard"
           placeholder="Search"
@@ -28,7 +43,7 @@ export default function Search (){
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton>
-                <SearchIcon />
+                <SearchIcon/>
                 </IconButton>
               </InputAdornment>
             )

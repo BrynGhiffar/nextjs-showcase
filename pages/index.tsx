@@ -43,7 +43,7 @@ const Home: NextPage = () => {
       setShownProjects(_ => temp);
       setIsLoading(_ => false);
     }
-    
+
     run();
   }, []);
 
