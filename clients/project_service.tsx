@@ -61,6 +61,11 @@ export type FindAllProjectsResponse = {
     projects: ProjectData[] | null
 };
 
+export type FindProjectByProjectNameResponse = {
+    message: string,
+    projects: ProjectData[] | null
+};
+
 export async function create_project(projectData: ProjectData): Promise<CreateProjectResponse> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -116,6 +121,19 @@ export async function find_all_projects(): Promise<FindAllProjectsResponse> {
     };
 
     const res: FindAllProjectsResponse = await fetch(`${HOST}/service/project/v1/`, requestOptions)
+                    .then(response => response.text())
+                    .then(result => JSON.parse(result))
+                    .catch(error => error);
+    return res;
+}
+
+export async function find_projects_by_name(name: string): Promise<FindProjectByProjectNameResponse> {
+    const requestOptions: RequestInit = {
+        method: 'GET',
+        redirect: 'follow'
+    };
+
+    const res: FindProjectByProjectNameResponse = await fetch(`${HOST}/service/project/v1/${name}`, requestOptions)
                     .then(response => response.text())
                     .then(result => JSON.parse(result))
                     .catch(error => error);
