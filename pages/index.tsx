@@ -48,23 +48,24 @@ const Home: NextPage = () => {
   }, []);
 
   return (
+    <>
   <div>
       <Navbar isLoading={isLoading}/>
       <Search/>
       {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
-    <main className={styles.helloworld}>
-      All of the projects, hopefully....
-    </main>
-    <div>
-      <div className={style.separator}/>
+    <div className={styles.container_home}>
+    <div className={style.separator}/>
         <div className={style.project_card_container}>
             {
                 shownProjects?.map(projectToProjectCard)
             }
         </div>
     </div>
+    </div>
+    <div>
+      
   </div>
   
-  )
+  </>)
 }
 export default Home;

@@ -29,7 +29,6 @@ export default function Search (){
       </div>
       <div className={searchStyle.container}>
         <div className={searchStyle.title}>
-          <FilterAltIcon></FilterAltIcon>
         </div>
       </div>
     </div>
