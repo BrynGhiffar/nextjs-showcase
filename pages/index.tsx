@@ -15,12 +15,11 @@ const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const projectsPerPage = 2;
+  const projectsPerPage = 10;
 
   useEffect(() => {
     const run = async () => {
       setIsLoading(_ => true);
-
       const allProjs = await find_all_projects();
       console.log(allProjs.projects)
       if (allProjs.projects !== null)

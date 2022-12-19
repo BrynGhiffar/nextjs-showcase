@@ -18,13 +18,18 @@
     .search_container {
         display: flex;
         justify-content: center;
+
         .search {
             &:hover {
                 cursor: pointer;
                 outline: none;
                 background-color: #EEEE;
             }
-            border-radius: 20px;
+            .button{
+                width: 40px;
+                height: 5px;
+            }
+            border-radius: 10px;
             background-color: #EEEE;
             margin: auto 1rem;
             padding: 5px 20px;

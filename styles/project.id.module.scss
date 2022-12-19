@@ -1,112 +1,109 @@
-
 .page_container {
-    background-color: #f2f2f2;
-    z-index: 0;
+  background-color: #f2f2f2;
+  z-index: 0;
 }
 .content_container {
+  // outline: 1px solid red;
+  background-color: white;
+  outline: 0.1px solid gray;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+  margin: 0 300px;
+  padding: 0 100px;
+  padding-top: 100px;
+
+  .details_container {
+    padding: 0px 2rem 0px 2rem;
+    margin: 0px 0px 3rem 0px;
     // outline: 1px solid red;
-    background-color: white;
-    outline: 0.1px solid gray;
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
-    margin: 0 300px;
-    padding: 0 100px;
-    padding-top: 100px;
+    .project_name {
+      min-height: 4vh;
+    }
+    .project_short_description {
+      min-height: 2vh;
+    }
+    .member_list {
+      // outline: 1px solid blue;
+      display: flex;
+      gap: 0.5rem;
+      .member_item {
+        $base-color: lighten(grey, 40%);
+        $hover-color: lighten(grey, 35%);
+        border-radius: 10px;
+        padding: 0.5rem 1rem 0.5rem 1rem;
+        margin-right: 10px;
+        background-color: $base-color;
+        transition-property: all;
+        transition-timing-function: ease-out;
+        transition-duration: 200ms;
+        transition-delay: 100ms;
+        cursor: pointer;
 
-    .details_container {
-        padding: 0px 2rem 0px 2rem;
-        margin: 0px 0px 3rem 0px;
-        // outline: 1px solid red;
-        .project_name {
-            min-height: 4vh;
+        &:hover {
+          background-color: $hover-color;
         }
-        .project_short_description {
-            min-height: 2vh;
-        }
-        .member_list {
-            // outline: 1px solid blue;
-            display: flex;
-            gap: 0.5rem;
-            .member_item {
-                $base-color: lighten(grey, 40%);
-                $hover-color: lighten(grey, 35%);
-                border-radius: 10px;
-                padding: 0.5rem 1rem 0.5rem 1rem;
-                margin-right: 10px;
-                background-color: $base-color;
-                transition-property: all;
-                transition-timing-function: ease-out;
-                transition-duration: 200ms;
-                transition-delay: 100ms;
-                cursor: pointer;
+      }
+    }
+  }
 
-                &:hover {
-                    background-color: $hover-color;
-                }
-            }
-        }
+  .upper_container {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr 2fr;
 
+    .left_side {
+      // border: 1px solid blue;
+      box-shadow: 0px 0px 20px 0px black;
+      position: relative;
+      object-position: center;
+      aspect-ratio: 1/1.41;
+      // z-index: 10;
     }
 
-    .upper_container {
-        display: grid;
-        gap: 20px;
-        grid-template-columns: 1fr 2fr;
-
-
-        .left_side {
-            // border: 1px solid blue;
-            box-shadow: 0px 0px 20px 0px black;
-            position: relative;
-            object-position: center;
-            aspect-ratio: 1/1.41;
-            // z-index: 10;
-        }
-
-        .right_side {
-
-            .youtube_video {
-                height: 100%;
-                width: 100%;
-            }
-
-
-        }
-
+    .right_side {
+      .youtube_video {
+        height: 100%;
+        width: 100%;
+      }
     }
+  }
 
-    .lower_container {
-        padding: 2rem;
+  .lower_container {
+    padding: 2rem;
 
-        .hyperlinks {
-            // outline: 1px solid red;
-            background-color: white;
-            width: 10vw;
-            grid-template-columns: repeat(3, 1fr);
-            display: grid;
-            margin-top: 2rem;
+    .hyperlinks {
+      // outline: 1px solid red;
+      background-color: white;
+      width: 10vw;
+      grid-template-columns: repeat(3, 1fr);
+      display: grid;
+      margin-top: 2rem;
 
-            a {
-                transition-property: all;
-                transition-duration: 200ms;
-                transition-timing-function: ease-out;
+      a {
+        transition-property: all;
+        transition-duration: 200ms;
+        transition-timing-function: ease-out;
 
-                &:hover {
-                    position: relative;
-                    scale: 1.2;
-                }
-            }
-
-            .image_holder {
-                position: relative;
-                top: 3px;
-                // outline: 1px solid blue;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
+        &:hover {
+          position: relative;
+          scale: 1.2;
         }
+      }
+
+      .image_holder {
+        position: relative;
+        top: 3px;
+        // outline: 1px solid blue;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
+  }
+
+  .commentBar_input {
+    display: flex;
+  }
 }
 @media (max-width:1300px){
     .content_container {
@@ -215,4 +212,3 @@
         }
     }
 }
-
