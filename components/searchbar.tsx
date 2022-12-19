@@ -2,6 +2,9 @@ import searchStyle from "./searchbar.module.scss";
 import {TextField, InputAdornment, IconButton} from "@mui/material";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SearchIcon from '@mui/icons-material/Search';
+import {find_projects_by_name} from "../clients/project_service";
+
+
 
 export default function Search (){
 
@@ -14,7 +17,13 @@ export default function Search (){
       <div className={searchStyle.search}>
         <TextField
           type="text"
+          variant="standard"
           placeholder="Search"
+          sx ={{
+            input:{
+              border:"none",
+            }
+          }}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -36,6 +45,3 @@ export default function Search (){
 
 </>)
 }
-
-
-
