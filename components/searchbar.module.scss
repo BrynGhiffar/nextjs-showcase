@@ -3,6 +3,7 @@
     font-weight: bold;
     h1{
         font-weight: 300;
+        padding-left: 11%;
 
     }
 }
@@ -13,7 +14,9 @@
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 3fr 1fr;
-    padding: 90px 3% 2%;
+    padding: 90px 3% 1%;
+    padding-right: 8%;
+    outline: none;
 
     .search_container {
         display: flex;
