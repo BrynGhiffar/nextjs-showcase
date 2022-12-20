@@ -6,7 +6,7 @@ import style from "../styles/profile.module.scss";
 import { SetStateAction, useEffect, useState } from "react";
 import ProjectCard from "../components/projectCard";
 import { CircularProgress } from "@mui/material";
-import { Pagination } from '@mui/material';
+import { Pagination, Box } from '@mui/material';
 
 const Home: NextPage = () => {
 
@@ -15,7 +15,7 @@ const Home: NextPage = () => {
   const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
   const [totalPages, setTotalPages] = useState<number>(3);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const projectsPerPage = 10;
+  const projectsPerPage = 2;
 
   const handlePaginationChange = (_event: any, value: SetStateAction<number>) =>
   { 
@@ -81,16 +81,19 @@ const Home: NextPage = () => {
               }
           </div>
       </div>
-      <div>
+      <Box justifyContent={"center"} alignItems="center" display={"flex"}
+           sx={{
+              marginTop:"25px",
+              marginBottom:"15px",
+           }}
+           >
         <Pagination
           count={totalPages}
-          variant='outlined'
           color='primary'
-          className='pagination'
           page={currentPage}
           onChange={handlePaginationChange}
         />
-      </div>
+      </Box>
   </div>
   )
 }
