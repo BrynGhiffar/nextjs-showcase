@@ -1,6 +1,7 @@
 import Navbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import Image from "next/image";
+import Moment from 'moment';
 import style from "../../styles/project.id.module.scss";
 import { useEffect, useState } from "react";
 import { EMPTY_PROJECT_DATA, find_project_by_project_id } from "../../clients/project_service";
@@ -24,6 +25,10 @@ import SendIcon from "@mui/icons-material/Send";
 import Stack from "@mui/material/Stack";
 import { CommentData, EMPTY_COMMENT_DATA } from "../../clients/comment_service";
 import CommentCard from "../../components/commentCard";
+import { getCurrentUserId } from "../../clients/azure_client";
+import { useMsal } from "@azure/msal-react";
+import { findUserByMsftProvider } from "../../clients/user_service";
+import { create_comment } from "../../clients/comment_service";
 
 const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
@@ -52,8 +57,11 @@ export default function ProjectPage() {
     name: string;
     id: string;
   };
-
+  
+  const { instance, accounts } = useMsal();
   const [project, set_project] = useState<ProjectData | null>(null);
+  const [user_id, set_user_id] = useState<string>();
+  const [comment, set_comment] = useState<string>();
   const [members, set_members] = useState<Array<UserNameId> | null>(null);
   const commentCard = (commentData: CommentData) => (<CommentCard key={commentData.project_id} commentData={commentData}/>)
   const [comments, set_comments] =  useState<CommentData[] | null>([])
@@ -62,6 +70,11 @@ export default function ProjectPage() {
 
   useEffect(() => {
     const run = async () => {
+      const id = await getCurrentUserId(instance, accounts);
+      const res = await findUserByMsftProvider("MSFT", id);
+      if (res !== null){
+        set_user_id( _ => res.user.user_id);
+      }
       const final: UserNameId[] = [];
 
       if (typeof project_id === "string") {
@@ -217,12 +230,31 @@ export default function ProjectPage() {
                     height: 150,
                   }}
                 >
-                  <TextField fullWidth label="Comment" id="Comment" />
+                  <TextField fullWidth label="Comment" value={comment} onChange={e => {
+                                const { value } = e.target;
+                                set_comment(value);
+                            }} id="Comment" />
                 </Box>
               </div>
               <div>
                 <Button
                   variant="contained"
+                  onClick={async (_) => {
+                    if (typeof project_id === "string" && typeof user_id === "string" && typeof comment === "string"){
+                      const commentData: CommentData = {
+                        "comment_id": "",
+                        "date_time": Moment().format('YYYY-MM-DDTHH:mm:ssZ'),
+                        "comment": comment,
+                        "user_id": user_id,
+                        "project_id": project_id,
+                      };
+                      
+
+                      const res = await create_comment(commentData);
+                      window.location.reload();
+                    };
+                    
+                }}
                   endIcon={<SendIcon />}
                   sx={{
                     marginTop: 10,
