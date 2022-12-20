@@ -7,6 +7,8 @@ import { SetStateAction, useEffect, useState } from "react";
 import ProjectCard from "../components/projectCard";
 import { CircularProgress } from "@mui/material";
 import { Pagination, Box } from '@mui/material';
+import Search from "../components/searchbar";
+
 
 const Home: NextPage = () => {
 
@@ -26,9 +28,8 @@ const Home: NextPage = () => {
   useEffect(() => {
     const run = async () => {
       setIsLoading(_ => true);
-
-      const allProjs = await find_project_by_name("", currentPage, projectsPerPage);
       
+      const allProjs = await find_project_by_name("", currentPage, projectsPerPage);
       if (allProjs.projects !== null)
       {
         const projs = allProjs.projects;
@@ -69,6 +70,7 @@ const Home: NextPage = () => {
   return (
   <div>
       <Navbar isLoading={isLoading}/>
+      <Search/>
       {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
       <main className={styles.helloworld}>
         All of the projects, hopefully....
