@@ -21,7 +21,6 @@ const Home: NextPage = () => {
     const run = async () => {
       setIsLoading(_ => true);
       const allProjs = await find_all_projects();
-      console.log(allProjs.projects)
       if (allProjs.projects !== null)
       {
         const projs = allProjs.projects;

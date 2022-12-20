@@ -100,9 +100,21 @@
       }
     }
   }
-
+  .commentTitle{
+    margin-bottom: -65px;
+  }
   .commentBar_input {
     display: flex;
+  }
+
+  .commentBox{
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    border: solid 2px;
+    height: fit-content;
+    padding: 10px;
+
   }
 }
 @media (max-width:1300px){
