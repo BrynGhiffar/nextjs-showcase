@@ -14,6 +14,7 @@ import YouTube, { YouTubeProps } from "react-youtube";
 import dynamic from "next/dynamic";
 import "@uiw/react-markdown-preview/markdown.css";
 import Link from "next/link";
+import {find_comment_by_project_id}  from "../../clients/comment_service";
 import { Button, CircularProgress, Skeleton } from "@mui/material";
 import * as React from "react";
 import Box from "@mui/material/Box";
@@ -23,7 +24,6 @@ import SendIcon from "@mui/icons-material/Send";
 import Stack from "@mui/material/Stack";
 import { CommentData, EMPTY_COMMENT_DATA } from "../../clients/comment_service";
 import CommentCard from "../../components/commentCard";
-import { CommentData } from "../../clients/comment_service";
 
 const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
@@ -56,12 +56,23 @@ export default function ProjectPage() {
   const [project, set_project] = useState<ProjectData | null>(null);
   const [members, set_members] = useState<Array<UserNameId> | null>(null);
   const commentCard = (commentData: CommentData) => (<CommentCard key={commentData.project_id} commentData={commentData}/>)
+  const [comments, set_comments] =  useState<CommentData[] | null>([])
   const router = useRouter();
   const { id: project_id } = router.query;
 
   useEffect(() => {
     const run = async () => {
       const final: UserNameId[] = [];
+
+      if (typeof project_id === "string") {
+
+        const allComments = await find_comment_by_project_id(project_id);
+
+        if (allComments !== null) {
+          set_comments( _ => allComments.comments);
+          
+        }
+      }
 
       if (typeof project_id === "string") {
         const res = await find_project_by_project_id(project_id);
@@ -225,7 +236,7 @@ export default function ProjectPage() {
               </div>
             </div>
             {
-                sample_comment_data?.map(commentCard)
+                comments?.map(commentCard)
             }
             </div>
           </div>
