@@ -1,5 +1,6 @@
 import type { NextPage } from "next"
 import { find_all_projects, ProjectData } from "../clients/project_service";
+import {find_comment_by_project_id}  from "../clients/comment_service";
 import styles from '../styles/home.module.scss';
 import Navbar from "../components/navbar";
 import style from "../styles/profile.module.scss";
@@ -21,7 +22,8 @@ const Home: NextPage = () => {
     const run = async () => {
       setIsLoading(_ => true);
       const allProjs = await find_all_projects();
-      console.log(allProjs.projects)
+      const allComments = await find_comment_by_project_id("1233214"); // Use console to check 
+      console.log(allComments.comments)
       if (allProjs.projects !== null)
       {
         const projs = allProjs.projects;
