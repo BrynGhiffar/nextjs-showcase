@@ -4,7 +4,7 @@ const HOST = COMMENTSERVICE_HOST;
 
 export type CommentData = {
     "comment_id": string,
-    "date_time": Date,
+    "date_time": string,
     "comment" : string,
     "user_id": string,
     "project_id": string,

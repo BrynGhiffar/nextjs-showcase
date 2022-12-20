@@ -3,7 +3,7 @@ import Footer from "../../components/footer";
 import Image from "next/image";
 import style from "../../styles/project.id.module.scss";
 import { useEffect, useState } from "react";
-import { find_project_by_project_id } from "../../clients/project_service";
+import { EMPTY_PROJECT_DATA, find_project_by_project_id } from "../../clients/project_service";
 import { useRouter } from "next/router";
 import { ProjectData } from "../../clients/project_service";
 import { FindUserByIdResponse, findUserById } from "../../clients/user_service";
@@ -21,10 +21,31 @@ import TextField from "@mui/material/TextField";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
 import Stack from "@mui/material/Stack";
+import { CommentData, EMPTY_COMMENT_DATA } from "../../clients/comment_service";
+import CommentCard from "../../components/commentCard";
+import { CommentData } from "../../clients/comment_service";
 
 const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
 });
+
+
+const sample_comment_data = [{
+  "comment_id": "4321442",
+  "date_time": Date(),
+  "comment": "At this point you're free to make changes, create new commits, switch branches, and perform any other Git operations; then come back and re-apply your stash when you're ready. ",
+  "user_id": "63a15bdd02499a3ea3c6351d",
+  "project_id": "63a142e88e0540c10a7d8b99",
+
+},
+{
+  "comment_id": "4321442",
+  "date_time": Date(),
+  "comment": "Fake news has been a persistent and evolving problem in our society. As the spread of COVID-19 continues, the spread of fake news that is associated with it has also become much more rampant. Trying to solve this, we collected a dataset of 7,000 real news and 1,200 fake news titles on COVID-19 in Indonesia. We used three different machine learning baselines (Support Vector Machine (SVM), Logistic Regression, and Multinomial Bayes (MNB)) to create a binary classification (hoax vs real).  ",
+  "user_id": "63a15bdd02499a3ea3c6351d",
+  "project_id": "63a142e88e0540c10a7d8b99",
+
+}]
 
 export default function ProjectPage() {
   type UserNameId = {
@@ -34,6 +55,7 @@ export default function ProjectPage() {
 
   const [project, set_project] = useState<ProjectData | null>(null);
   const [members, set_members] = useState<Array<UserNameId> | null>(null);
+  const commentCard = (commentData: CommentData) => (<CommentCard key={commentData.project_id} commentData={commentData}/>)
   const router = useRouter();
   const { id: project_id } = router.query;
 
@@ -172,11 +194,14 @@ export default function ProjectPage() {
             </a>
           </div>
           <div>
+            
+            <div className={style.commentBox}>
+              <h1 className={style.commentTitle}>Comment Section</h1>
             <div className={style.commentBar_input}>
               <div>
                 <Box
                   sx={{
-                    paddingTop: 5,
+                    paddingTop: 10,
                     width: 900,
                     height: 150,
                   }}
@@ -189,8 +214,8 @@ export default function ProjectPage() {
                   variant="contained"
                   endIcon={<SendIcon />}
                   sx={{
-                    marginTop: 5,
-                    marginLeft: 5,
+                    marginTop: 10,
+                    marginLeft: 2,
                     paddingTop: 2,
                     paddingBottom: 2,
                   }}
@@ -198,6 +223,10 @@ export default function ProjectPage() {
                   Upload
                 </Button>
               </div>
+            </div>
+            {
+                sample_comment_data?.map(commentCard)
+            }
             </div>
           </div>
         </div>
