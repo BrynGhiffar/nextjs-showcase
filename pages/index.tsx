@@ -1,5 +1,5 @@
 import type { NextPage } from "next"
-import { find_all_projects, ProjectData } from "../clients/project_service";
+import { find_all_projects, ProjectData, find_project_by_name } from "../clients/project_service";
 import styles from '../styles/home.module.scss';
 import Navbar from "../components/navbar";
 import style from "../styles/profile.module.scss";
@@ -11,11 +11,11 @@ import { Pagination } from '@mui/material';
 const Home: NextPage = () => {
 
   const [userProjects, setUserProjects] = useState<ProjectData[]>([]);
-  const [shownProjects, setShownProjects] = useState<ProjectData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
+  const [totalPages, setTotalPages] = useState<number>(3);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const projectsPerPage = 5;
+  const projectsPerPage = 10;
 
   const handlePaginationChange = (_event: any, value: SetStateAction<number>) =>
   { 
@@ -27,49 +27,44 @@ const Home: NextPage = () => {
     const run = async () => {
       setIsLoading(_ => true);
 
-      const allProjs = await find_all_projects();
-      console.log(allProjs.projects)
+      const allProjs = await find_project_by_name("", currentPage, projectsPerPage);
+      
       if (allProjs.projects !== null)
       {
         const projs = allProjs.projects;
         setUserProjects(_ => projs);
       }
-
-      const temp: ProjectData[] = [];
-
-      if (allProjs.projects !== null)
-      {
-        for (var i = (currentPage - 1) * projectsPerPage; i < currentPage * projectsPerPage; i++)
-        {
-          if (allProjs.projects[i] !== undefined)
-            temp.push(allProjs.projects[i]);
-          else
-            break
-        }
-      }
-      setShownProjects(_ => temp);
       setIsLoading(_ => false);
     }
     
     run();
   }, []);
 
+  // this is called when a page fucking changes
   useEffect(() => {
-    setIsLoading(_ => true);
-    const temp: ProjectData[] = [];
-    if (userProjects !== null)
+    const run = async () => {
+      setIsLoading(_ => true);
+
+      const allProjs = await find_project_by_name("", currentPage, projectsPerPage);
+      if (allProjs.projects !== null)
       {
-        for (var i = (currentPage - 1) * projectsPerPage; i < currentPage * projectsPerPage; i++)
-        {
-          if (userProjects[i] !== undefined)
-            temp.push(userProjects[i]);
-          else
-            break;
-        }
+        const projs = allProjs.projects;
+        setUserProjects(_ => projs);
       }
-      setShownProjects(_ => temp);
+      
       setIsLoading(_ => false);
+    }
+    
+    run();
   }, [currentPage]);
+
+  // i love state changes
+  useEffect(() => {
+    if (userProjects.length !== 0) {
+      const page_total = Math.ceil(userProjects[0].projects_total / projectsPerPage)
+      setTotalPages(page_total)
+    }
+  }, [userProjects])
 
   return (
   <div>
@@ -82,18 +77,20 @@ const Home: NextPage = () => {
         <div className={style.separator}/>
           <div className={style.project_card_container}>
               {
-                  shownProjects?.map(projectToProjectCard)
+                  userProjects?.map(projectToProjectCard)
               }
           </div>
       </div>
-      <Pagination
-        count={Math.ceil(userProjects.length / projectsPerPage )}
-        variant='outlined'
-        color='primary'
-        className='pagination'
-        page={currentPage}
-        onChange={handlePaginationChange}
-      />
+      <div>
+        <Pagination
+          count={totalPages}
+          variant='outlined'
+          color='primary'
+          className='pagination'
+          page={currentPage}
+          onChange={handlePaginationChange}
+        />
+      </div>
   </div>
   )
 }
