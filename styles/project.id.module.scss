@@ -65,12 +65,15 @@
         height: 100%;
         width: 100%;
       }
+      
     }
   }
-
   .lower_container {
+    top: 15px;
     padding: 2rem;
-
+    box-shadow: 0px 0px 20px 0px black;
+      position: relative;
+      object-position: center;
     .hyperlinks {
       // outline: 1px solid red;
       background-color: white;
@@ -179,48 +182,59 @@
             }
     
             .right_side {
-    
-                .youtube_video {
-                    height: 100%;
-                    width: 100%;
-                }
-    
-    
+              .youtube_video {
+                height: 100%;
+                width: 100%;
+              }  
             }
-    
         }
-    
+
         .lower_container {
             padding: 2rem;
-    
             .hyperlinks {
-                // outline: 1px solid red;
-                background-color: white;
-                width: 20vw;
-                grid-template-columns: repeat(3, 1fr);
-                display: grid;
-                margin-top: 2rem;
-    
-                a {
-                    transition-property: all;
-                    transition-duration: 200ms;
-                    transition-timing-function: ease-out;
-    
-                    &:hover {
-                        position: relative;
-                        scale: 1.2;
-                    }
-                }
-    
-                .image_holder {
-                    position: relative;
-                    top: 3px;
-                    // outline: 1px solid blue;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
+              // outline: 1px solid red;
+              background-color: white;
+              width: 20vw;
+              grid-template-columns: repeat(3, 1fr);
+              display: grid;
+              margin-top: 2rem;
+  
+              a {
+                  transition-property: all;
+                  transition-duration: 200ms;
+                  transition-timing-function: ease-out;
+  
+                  &:hover {
+                      position: relative;
+                      scale: 1.2;
+                  }
+              }
+  
+              .image_holder {
+                  position: relative;
+                  top: 3px;
+                  // outline: 1px solid blue;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+              }
             }
+        }
+        .commentTitle{
+          margin-bottom: -65px;
+        }
+        .commentBar_input {
+          display: flex;
+        }
+      
+        .commentBox{
+          margin-top: 50px;
+          display: flex;
+          flex-direction: column;
+          border: solid 2px;
+          height: fit-content;
+          padding: 10px;
+      
         }
     }
 }

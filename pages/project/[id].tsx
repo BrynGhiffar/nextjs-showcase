@@ -160,51 +160,55 @@ export default function ProjectPage() {
           </div>
           <div className={style.right_side}>
             <YouTube
-              className={style.youtube_video}
-              videoId={project?.youtube_link.substring(32, 43)!}
-              opts={opts}
-              onReady={onPlayerReady}
+                className={style.youtube_video}
+                videoId={project?.youtube_link.substring(32, 43)!}
+                opts={opts}
+                onReady={onPlayerReady}
             />
           </div>
         </div>
         <div className={style.lower_container}>
           <MarkdownPreview
-            source={project?.description!}
-            warpperElement={{ "data-color-mode": "light" }}
-          />
-          <div className={style.hyperlinks}>
-            <a href={project?.youtube_link!} target="_blank" rel="noreferrer">
-              <div className={style.image_holder}>
-                <Image
-                  src={youtube}
-                  width={40}
-                  height={40}
-                  alt="Project Poster"
-                />
+                source={project?.description!}
+                warpperElement={{ "data-color-mode": "light" }}
+              />
+              <h1>Description</h1>
+              <div className={style.hyperlinks}>
+                <a href={project?.youtube_link!} target="_blank" rel="noreferrer">
+                  <div className={style.image_holder}>
+                    <Image
+                      src={youtube}
+                      width={40}
+                      height={40}
+                      alt="Project Poster"
+                    />
+                  </div>
+                </a>
+                <a href={project?.github_link!} target="_blank" rel="noreferrer">
+                  <div className={style.image_holder}>
+                    <Image
+                      src={github}
+                      width={40}
+                      height={40}
+                      alt="Project Poster"
+                    />
+                  </div>
+                </a>
+                <a href={project?.youtube_link!} target="_blank" rel="noreferrer">
+                  <div className={style.image_holder}>
+                    <Image
+                      src={website}
+                      width={40}
+                      height={40}
+                      alt="Project Poster"
+                    />
+                  </div>
+                </a>
               </div>
-            </a>
-            <a href={project?.github_link!} target="_blank" rel="noreferrer">
-              <div className={style.image_holder}>
-                <Image
-                  src={github}
-                  width={40}
-                  height={40}
-                  alt="Project Poster"
-                />
-              </div>
-            </a>
-            <a href={project?.youtube_link!} target="_blank" rel="noreferrer">
-              <div className={style.image_holder}>
-                <Image
-                  src={website}
-                  width={40}
-                  height={40}
-                  alt="Project Poster"
-                />
-              </div>
-            </a>
-          </div>
-          <div>
+              <h2>Members:</h2>
+          
+        </div>
+        <div>
             
             <div className={style.commentBox}>
               <h1 className={style.commentTitle}>Comment Section</h1>
@@ -240,7 +244,6 @@ export default function ProjectPage() {
             }
             </div>
           </div>
-        </div>
       </div>
 
       <Footer />
