@@ -20,7 +20,11 @@ export type ProjectData = {
     "short_description": string,
     "description": string,
     "youtube_link": string,
-    "github_link": string
+    "github_link": string,
+    "grade": string,
+    "course_code": string,
+    "lecturer_name": string,
+    "lecturer_comment": string
 };
 
 export const EMPTY_PROJECT_DATA_FILE = {
@@ -40,7 +44,11 @@ export const EMPTY_PROJECT_DATA = {
     "short_description": "",
     "description": "",
     "youtube_link": "",
-    "github_link": ""
+    "github_link": "",
+    "grade": "",
+    "course_code": "",
+    "lecturer_name": "",
+    "lecturer_comment": ""
 };
 
 export type CreateProjectResponse = {
