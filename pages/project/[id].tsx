@@ -1,9 +1,10 @@
 import Navbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import Image from "next/image";
+import Moment from 'moment';
 import style from "../../styles/project.id.module.scss";
 import { useEffect, useState } from "react";
-import { find_project_by_project_id } from "../../clients/project_service";
+import { EMPTY_PROJECT_DATA, find_project_by_project_id } from "../../clients/project_service";
 import { useRouter } from "next/router";
 import { ProjectData } from "../../clients/project_service";
 import { FindUserByIdResponse, findUserById } from "../../clients/user_service";
@@ -14,6 +15,7 @@ import YouTube, { YouTubeProps } from "react-youtube";
 import dynamic from "next/dynamic";
 import "@uiw/react-markdown-preview/markdown.css";
 import Link from "next/link";
+import {find_comment_by_project_id}  from "../../clients/comment_service";
 import { Button, CircularProgress, Skeleton } from "@mui/material";
 import * as React from "react";
 import Box from "@mui/material/Box";
@@ -21,25 +23,69 @@ import TextField from "@mui/material/TextField";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
 import Stack from "@mui/material/Stack";
+import { CommentData, EMPTY_COMMENT_DATA } from "../../clients/comment_service";
+import CommentCard from "../../components/commentCard";
+import { getCurrentUserId } from "../../clients/azure_client";
+import { useMsal } from "@azure/msal-react";
+import { findUserByMsftProvider } from "../../clients/user_service";
+import { create_comment } from "../../clients/comment_service";
 
 const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
 });
+
+
+const sample_comment_data = [{
+  "comment_id": "4321442",
+  "date_time": Date(),
+  "comment": "At this point you're free to make changes, create new commits, switch branches, and perform any other Git operations; then come back and re-apply your stash when you're ready. ",
+  "user_id": "63a15bdd02499a3ea3c6351d",
+  "project_id": "63a142e88e0540c10a7d8b99",
+
+},
+{
+  "comment_id": "4321442",
+  "date_time": Date(),
+  "comment": "Fake news has been a persistent and evolving problem in our society. As the spread of COVID-19 continues, the spread of fake news that is associated with it has also become much more rampant. Trying to solve this, we collected a dataset of 7,000 real news and 1,200 fake news titles on COVID-19 in Indonesia. We used three different machine learning baselines (Support Vector Machine (SVM), Logistic Regression, and Multinomial Bayes (MNB)) to create a binary classification (hoax vs real).  ",
+  "user_id": "63a15bdd02499a3ea3c6351d",
+  "project_id": "63a142e88e0540c10a7d8b99",
+
+}]
 
 export default function ProjectPage() {
   type UserNameId = {
     name: string;
     id: string;
   };
-
+  
+  const { instance, accounts } = useMsal();
   const [project, set_project] = useState<ProjectData | null>(null);
+  const [user_id, set_user_id] = useState<string>();
+  const [comment, set_comment] = useState<string>();
   const [members, set_members] = useState<Array<UserNameId> | null>(null);
+  const commentCard = (commentData: CommentData) => (<CommentCard key={commentData.project_id} commentData={commentData}/>)
+  const [comments, set_comments] =  useState<CommentData[] | null>([])
   const router = useRouter();
   const { id: project_id } = router.query;
 
   useEffect(() => {
     const run = async () => {
+      const id = await getCurrentUserId(instance, accounts);
+      const res = await findUserByMsftProvider("MSFT", id);
+      if (res !== null){
+        set_user_id( _ => res.user.user_id);
+      }
       const final: UserNameId[] = [];
+
+      if (typeof project_id === "string") {
+
+        const allComments = await find_comment_by_project_id(project_id);
+
+        if (allComments !== null) {
+          set_comments( _ => allComments.comments);
+          
+        }
+      }
 
       if (typeof project_id === "string") {
         const res = await find_project_by_project_id(project_id);
@@ -127,70 +173,96 @@ export default function ProjectPage() {
           </div>
           <div className={style.right_side}>
             <YouTube
-              className={style.youtube_video}
-              videoId={project?.youtube_link.substring(32, 43)!}
-              opts={opts}
-              onReady={onPlayerReady}
+                className={style.youtube_video}
+                videoId={project?.youtube_link.substring(32, 43)!}
+                opts={opts}
+                onReady={onPlayerReady}
             />
           </div>
         </div>
         <div className={style.lower_container}>
           <MarkdownPreview
-            source={project?.description!}
-            warpperElement={{ "data-color-mode": "light" }}
-          />
-          <div className={style.hyperlinks}>
-            <a href={project?.youtube_link!} target="_blank" rel="noreferrer">
-              <div className={style.image_holder}>
-                <Image
-                  src={youtube}
-                  width={40}
-                  height={40}
-                  alt="Project Poster"
-                />
+                source={project?.description!}
+                warpperElement={{ "data-color-mode": "light" }}
+              />
+              <h1>Description</h1>
+              <div className={style.hyperlinks}>
+                <a href={project?.youtube_link!} target="_blank" rel="noreferrer">
+                  <div className={style.image_holder}>
+                    <Image
+                      src={youtube}
+                      width={40}
+                      height={40}
+                      alt="Project Poster"
+                    />
+                  </div>
+                </a>
+                <a href={project?.github_link!} target="_blank" rel="noreferrer">
+                  <div className={style.image_holder}>
+                    <Image
+                      src={github}
+                      width={40}
+                      height={40}
+                      alt="Project Poster"
+                    />
+                  </div>
+                </a>
+                <a href={project?.youtube_link!} target="_blank" rel="noreferrer">
+                  <div className={style.image_holder}>
+                    <Image
+                      src={website}
+                      width={40}
+                      height={40}
+                      alt="Project Poster"
+                    />
+                  </div>
+                </a>
               </div>
-            </a>
-            <a href={project?.github_link!} target="_blank" rel="noreferrer">
-              <div className={style.image_holder}>
-                <Image
-                  src={github}
-                  width={40}
-                  height={40}
-                  alt="Project Poster"
-                />
-              </div>
-            </a>
-            <a href={project?.youtube_link!} target="_blank" rel="noreferrer">
-              <div className={style.image_holder}>
-                <Image
-                  src={website}
-                  width={40}
-                  height={40}
-                  alt="Project Poster"
-                />
-              </div>
-            </a>
-          </div>
-          <div>
+              <h2>Members:</h2>
+          
+        </div>
+        <div>
+            
+            <div className={style.commentBox}>
+              <h1 className={style.commentTitle}>Comment Section</h1>
             <div className={style.commentBar_input}>
               <div>
                 <Box
                   sx={{
-                    paddingTop: 5,
+                    paddingTop: 10,
                     width: 900,
                     height: 150,
                   }}
                 >
-                  <TextField fullWidth label="Comment" id="Comment" />
+                  <TextField fullWidth label="Comment" value={comment} onChange={e => {
+                                const { value } = e.target;
+                                set_comment(value);
+                            }} id="Comment" />
                 </Box>
               </div>
               <div>
                 <Button
                   variant="contained"
+                  onClick={async (_) => {
+                    if (typeof project_id === "string" && typeof user_id === "string" && typeof comment === "string"){
+                      const commentData: CommentData = {
+                        "comment_id": "",
+                        "date_time": Moment().format('YYYY-MM-DDTHH:mm:ssZ'),
+                        "comment": comment,
+                        "user_id": user_id,
+                        "project_id": project_id,
+                      };
+                      
+
+                      const res = await create_comment(commentData);
+                      window.location.reload();
+                    };
+                    
+                }}
                   endIcon={<SendIcon />}
                   sx={{
-                    marginTop: 5,
-                    marginLeft: 5,
+                    marginTop: 10,
+                    marginLeft: 2,
                     paddingTop: 2,
                     paddingBottom: 2,
                   }}
@@ -199,8 +271,11 @@ export default function ProjectPage() {
                 </Button>
               </div>
             </div>
+            {
+                comments?.map(commentCard)
+            }
+            </div>
           </div>
-        </div>
       </div>
 
       <Footer />
