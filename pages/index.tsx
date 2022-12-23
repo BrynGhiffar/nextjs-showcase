@@ -37,7 +37,7 @@ const Home: NextPage = () => {
       }
       setIsLoading(_ => false);
     }
-    
+
     run();
   }, []);
 
@@ -68,13 +68,13 @@ const Home: NextPage = () => {
   }, [userProjects])
 
   return (
+    <>
   <div>
       <Navbar isLoading={isLoading}/>
       <Search/>
       {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
-      <main className={styles.helloworld}>
-        All of the projects, hopefully....
-      </main>
+      <div className={styles.container_home}>
+      </div>
       <div>
         <div className={style.separator}/>
           <div className={style.project_card_container}>
@@ -97,6 +97,7 @@ const Home: NextPage = () => {
         />
       </Box>
   </div>
+  </>
   )
 }
 export default Home;

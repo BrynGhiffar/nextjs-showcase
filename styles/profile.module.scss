@@ -15,7 +15,7 @@ $debug-mode: false;
         overflow: visible;
         background-color: white;
         @if $debug-mode {
-            outline: 1px solid blue;
+            outline: 1px solid white;
         }
     }
 }
@@ -27,8 +27,7 @@ $debug-mode: false;
 
 .separator {
     border-bottom: 1px solid black;
-    margin-top: 5vh;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .profile_container {
@@ -46,10 +45,10 @@ $debug-mode: false;
         outline: 1px solid red;
     }
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     .project_card {
-        $base-color: lighten(gray, 40%);
+        $base-color: lighten(gray, 30%);
         $hover-color: lighten(gray, 35%);
         $border-radius: 7px;
         background-color: white;
@@ -79,7 +78,7 @@ $debug-mode: false;
         }
         .project_poster {
             height: 40vh;
-            width: 80%;
+            width: 100%;
             margin: auto;
             top: 30px;
             position: relative;
