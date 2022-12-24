@@ -1,8 +1,8 @@
 .commentCard{
     width: 100%;
     height: fit-content;
-    border: 1px solid;
-    background-color: #D2D2D2 ;
+    // border: 1px solid;
+    background-color: lighten(#D2D2D2, 10%);
     border-radius: 10px;
     margin: 10px;
     padding: 10px;
@@ -12,24 +12,25 @@
     flex-direction: column;
 
     .commentHeader{
-        display: flex;
         .commentName{
+            padding: 0px;
+            margin: 0px;
             font-weight: bold;
-            vertical-align: middle;
         }
     
         .commentDate{
+            line-height: 0.01rem;
+            padding: 0px;
+            margin: 0px;
             padding-left: 3px;
             font-size: 12px;
-            vertical-align: middle;
             padding-top: 8px;
 
-    }
+        }
 
-    .commentData{
-        margin: 0;
-
-    }
+        .commentData{
+            margin: 0;
+        }
 
     
     }

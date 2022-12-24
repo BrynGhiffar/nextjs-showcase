@@ -16,7 +16,7 @@ import dynamic from "next/dynamic";
 import "@uiw/react-markdown-preview/markdown.css";
 import Link from "next/link";
 import {find_comment_by_project_id}  from "../../clients/comment_service";
-import { Button, CircularProgress, Skeleton } from "@mui/material";
+import { Alert, Button, CircularProgress, Skeleton, Snackbar } from "@mui/material";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -33,7 +33,6 @@ import { create_comment } from "../../clients/comment_service";
 const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
 });
-
 
 const sample_comment_data = [{
   "comment_id": "4321442",
@@ -60,19 +59,28 @@ export default function ProjectPage() {
   
   const { instance, accounts } = useMsal();
   const [project, set_project] = useState<ProjectData | null>(null);
-  const [user_id, set_user_id] = useState<string>();
+  const [user_id, set_user_id] = useState<string | null>();
   const [comment, set_comment] = useState<string>();
   const [members, set_members] = useState<Array<UserNameId> | null>(null);
   const commentCard = (commentData: CommentData) => (<CommentCard key={commentData.project_id} commentData={commentData}/>)
-  const [comments, set_comments] =  useState<CommentData[] | null>([])
+  const [comments, set_comments] =  useState<CommentData[] | null>([]);
+  const [cannot_comment_warning, set_cannot_comment_warning] = useState<boolean>(false);
   const router = useRouter();
   const { id: project_id } = router.query;
+
+
+  const handle_cannot_comment_warning_close = (event?: React.SyntheticEvent | Event, reason?: string) => {
+      if (reason === 'clickaway') {
+          return;
+      };
+      set_cannot_comment_warning(false);
+  }
 
   useEffect(() => {
     const run = async () => {
       const id = await getCurrentUserId(instance, accounts);
       const res = await findUserByMsftProvider("MSFT", id);
-      if (res !== null){
+      if (res.user !== null){
         set_user_id( _ => res.user.user_id);
       }
       const final: UserNameId[] = [];
@@ -165,6 +173,7 @@ export default function ProjectPage() {
         <div className={style.upper_container}>
           <div className={style.left_side}>
             <Image
+              style={{backgroundColor: "black"}}
               src={project?.poster_image.base64!}
               layout="fill"
               objectFit="contain"
@@ -185,7 +194,6 @@ export default function ProjectPage() {
                 source={project?.description!}
                 warpperElement={{ "data-color-mode": "light" }}
               />
-              <h1>Description</h1>
               <div className={style.hyperlinks}>
                 <a href={project?.youtube_link!} target="_blank" rel="noreferrer">
                   <div className={style.image_holder}>
@@ -218,67 +226,58 @@ export default function ProjectPage() {
                   </div>
                 </a>
               </div>
-              <h2>Members:</h2>
-          
         </div>
-        <div>
-            
-            <div className={style.commentBox}>
-              <h1 className={style.commentTitle}>Comment Section</h1>
-            <div className={style.commentBar_input}>
-              <div>
-                <Box
-                  sx={{
-                    paddingTop: 10,
-                    width: 900,
-                    height: 150,
-                  }}
-                >
-                  <TextField fullWidth label="Comment" value={comment} onChange={e => {
-                                const { value } = e.target;
-                                set_comment(value);
-                            }} id="Comment" />
-                </Box>
-              </div>
-              <div>
-                <Button
-                  variant="contained"
-                  onClick={async (_) => {
-                    if (typeof project_id === "string" && typeof user_id === "string" && typeof comment === "string"){
-                      const commentData: CommentData = {
-                        "comment_id": "",
-                        "date_time": Moment().format('YYYY-MM-DDTHH:mm:ssZ'),
-                        "comment": comment,
-                        "user_id": user_id,
-                        "project_id": project_id,
-                      };
-                      
-
-                      const res = await create_comment(commentData);
-                      window.location.reload();
+      </div>
+      <div className={style.comment_section}>
+          <div className={style.commentBox}>
+          <p className={style.comment_title}>{comments !== null ? comments.length : 0} Comments</p>
+          <div className={style.commentBar_input}>
+              <TextField
+                fullWidth
+                label="Comment"
+                value={comment}
+                multiline
+                onChange={e => {
+                  const { value } = e.target;
+                  set_comment(value);
+                }} id="Comment"
+              />
+              <br />
+              <Button
+                variant="contained"
+                className={style.comment_send_button}
+                startIcon={<SendIcon />}
+                onClick={async (_) => {
+                  if (typeof project_id === "string" && typeof user_id === "string" && typeof comment === "string"){
+                    const commentData: CommentData = {
+                      "comment_id": "",
+                      "date_time": Moment().format('YYYY-MM-DDTHH:mm:ssZ'),
+                      "comment": comment,
+                      "user_id": user_id,
+                      "project_id": project_id,
                     };
                     
-                }}
-                  endIcon={<SendIcon />}
-                  sx={{
-                    marginTop: 10,
-                    marginLeft: 2,
-                    paddingTop: 2,
-                    paddingBottom: 2,
-                  }}
-                >
-                  Upload
-                </Button>
-              </div>
-            </div>
-            {
-                comments?.map(commentCard)
-            }
-            </div>
+                    await create_comment(commentData);
+                    window.location.reload();
+                  } else {
+                    set_cannot_comment_warning(true);
+                  }
+                  
+              }}>
+                comment
+              </Button>
+          </div>
+          {
+              comments?.map(commentCard)
+          }
           </div>
       </div>
-
       <Footer />
+      <Snackbar open={cannot_comment_warning} autoHideDuration={6000} onClose={handle_cannot_comment_warning_close}>
+          <Alert onClose={handle_cannot_comment_warning_close} severity="warning" sx={{ width: '100%' }}>
+              Please, login to comment
+          </Alert>
+      </Snackbar>
     </div>
   );
 }

@@ -137,7 +137,9 @@ export async function find_project_by_name(project_title: string, page: number, 
         redirect: 'follow'
     };
 
-    const res: FindProjectsByNameResponse = await fetch(`${HOST}/service/project/v1/project/?page=${page}&projects_per_page=${projects_per_page}`, requestOptions)
+    const name: string = encodeURIComponent(project_title);
+
+    const res: FindProjectsByNameResponse = await fetch(`${HOST}/service/project/v1/project/?project_title=${name}&page=${page}&projects_per_page=${projects_per_page}`, requestOptions)
                     .then(response => response.text())
                     .then(result => JSON.parse(result))
                     .catch(error => error);

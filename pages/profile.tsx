@@ -16,7 +16,7 @@ import { callMsGraph } from "../azureGraph.config";
 import { useIsAuthenticated } from '@azure/msal-react';
 import { updateDescription, findUserByMsftProvider, UserData, EMPTY_USER_DATA } from "../clients/user_service";
 import { find_projects_by_user_id, ProjectData } from "../clients/project_service";
-import { Button, CircularProgress, Skeleton } from "@mui/material";
+import { Button, Skeleton } from "@mui/material";
 import Footer from "../components/footer";
 import { getCurrentUserId } from "../clients/azure_client";
 import { useRouter } from "next/router";
@@ -130,7 +130,6 @@ export default function Profile(profileProps: ProfileProps) {
             <title>Project Showcase - Profile Page</title>
         </Head>
         <Navbar isLoading={isLoading}/>
-        {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
         <div className={style.container}>
                 <div className={style.profile_container}>
                     {
@@ -139,7 +138,7 @@ export default function Profile(profileProps: ProfileProps) {
                             </Skeleton>
                         ) : (
                             <div className={style.image_profile}>
-                                <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
+                                <Image src={profile} alt="profile picture" className={style.border_circle} width="250" height="250"/>
                             </div>
                         )
                     }
@@ -170,7 +169,6 @@ export default function Profile(profileProps: ProfileProps) {
                         }
                     </div>
                 </div>
-            <div>
                 <div className={style.separator}/>
                 <div className={style.project_card_container}>
                     {
@@ -178,7 +176,6 @@ export default function Profile(profileProps: ProfileProps) {
                     }
                     <CreateProjectCard/>
                 </div>
-            </div>
         </div>
         <Footer/>
     </div>);
