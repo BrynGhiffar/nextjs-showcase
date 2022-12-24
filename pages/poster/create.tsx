@@ -461,7 +461,9 @@ function Contributor({ current_project, set_project, set_is_loading } : Contribu
                             "short_description": current_project.short_description,
                             "description": current_project.description,
                             "youtube_link": current_project.youtube_link,
-                            "github_link": current_project.github_link
+                            "github_link": current_project.github_link,
+                            "projects_total": 0,
+                            "page_projects_total": 0
                         };
                         const res = await create_project(projectData);
                         set_project(_ => EMPTY_PROJECT);

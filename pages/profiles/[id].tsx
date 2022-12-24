@@ -15,7 +15,7 @@ import { callMsGraph } from "../../azureGraph.config";
 import { useIsAuthenticated } from '@azure/msal-react';
 import { updateDescription, findUserByMsftProvider, findUserById, UserData, EMPTY_USER_DATA } from "../../clients/user_service";
 import { find_projects_by_user_id, ProjectData } from "../../clients/project_service";
-import { Button, CircularProgress, Skeleton } from "@mui/material";
+import { Button, Skeleton } from "@mui/material";
 import Footer from "../../components/footer";
 import { getCurrentUserId } from "../../clients/azure_client";
 import { useRouter } from "next/router";
@@ -135,7 +135,6 @@ export default function Profile(profileProps: ProfileProps) {
             <title>Project Showcase - Profile Page</title>
         </Head>
         <Navbar isLoading={isLoading} />
-        {isLoading ? <CircularProgress color="inherit" className={style.progress_circle} /> : ""}
         <div className={style.container}>
             <div className={style.profile_container}>
                 {

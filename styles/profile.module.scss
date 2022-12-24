@@ -15,7 +15,7 @@ $debug-mode: false;
         overflow: visible;
         background-color: white;
         @if $debug-mode {
-            outline: 1px solid white;
+            outline: 1px solid blue;
         }
     }
 }
@@ -27,16 +27,17 @@ $debug-mode: false;
 
 .separator {
     border-bottom: 1px solid black;
-    margin-bottom: 15px;
+    margin-bottom: 1rem;
 }
 
 .profile_container {
     display: grid;
     margin-top: 100px;
+    overflow-y: visible;
     grid-auto-flow: column;
     grid-auto-columns: 1fr 4fr;
     @if $debug-mode {
-        outline: 1px solid black;
+        outline: 1px solid green;
     }
 }
 
@@ -45,10 +46,10 @@ $debug-mode: false;
         outline: 1px solid red;
     }
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     .project_card {
-        $base-color: lighten(gray, 30%);
+        $base-color: lighten(gray, 40%);
         $hover-color: lighten(gray, 35%);
         $border-radius: 7px;
         background-color: white;
@@ -77,8 +78,8 @@ $debug-mode: false;
             top: -10px;
         }
         .project_poster {
-            height: 40vh;
-            width: 100%;
+            width: 80%;
+            aspect-ratio: 1 / 1.41;
             margin: auto;
             top: 30px;
             position: relative;
@@ -92,7 +93,6 @@ $debug-mode: false;
             padding: 20px 10px 10px;
         }
     }
-
 }
 
 .create_poster_card {
@@ -105,8 +105,11 @@ $debug-mode: false;
 }
 
 .image_profile {
-    display: flex;
-    justify-content: center;
+    // display: flex;
+    // justify-content: center;
+    // width: 20%;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     @if $debug-mode {
         outline: 1px solid red;
     }
