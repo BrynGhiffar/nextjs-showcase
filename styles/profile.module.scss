@@ -8,7 +8,7 @@ $debug-mode: false;
     .container {
         outline: 0.1px solid gray;
         border-bottom-left-radius: 15px;
-        border-bottom-right-radius: 15px;
+        border-bottom-right-radius: 5px;
         margin: 0px 100px;
         padding: 50px;
         height: 100%;
@@ -96,6 +96,7 @@ $debug-mode: false;
 
 }
 
+
 .create_poster_card {
     cursor: pointer;
     display: flex;
@@ -161,6 +162,7 @@ $debug-mode: false;
         }
     }
 }
+
 
 .border_circle {
     border-radius: 9999px;

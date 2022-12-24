@@ -35,6 +35,11 @@ export default function ProjectCard({ projectData }: ProjectCardProps) {
                     className={style.margin20px} onClick = {_ => {
                         router.push(`/project/${projectData.project_id}`)
                     }}>Read More</Button>
+                <Button
+                    variant="outlined"
+                    color="info"
+                    // just need to router push to the update page for functunality
+                    className={style.margin20px} >Update</Button>
                 </div>
             </div>
         </>

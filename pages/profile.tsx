@@ -86,6 +86,7 @@ function CreateProjectCard() {
     </>)
 }
 
+
 type ProfileProps = {
     userData: UserData
 }
@@ -168,7 +169,11 @@ export default function Profile(profileProps: ProfileProps) {
                                 <ProfileDescription user_id={userData.user_id} description={userData.description}/>
                             )
                         }
+                    </div> 
+                    <div className={style.update_project}>
+                        <button>Update a Project</button>
                     </div>
+                    
                 </div>
             <div>
                 <div className={style.separator}/>
