@@ -108,6 +108,8 @@ export default function Profile(profileProps: ProfileProps) {
     type ClassNameId = {
         name: string;
         id: string;
+        class_code: string;
+        course_code: string;
       };
     const { instance, accounts } = useMsal();
     const isAuthenticated = useIsAuthenticated();
