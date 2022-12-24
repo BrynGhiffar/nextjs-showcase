@@ -291,6 +291,16 @@ export default function Profile(profileProps: ProfileProps) {
                     <div className={style.separator}/>
                     <div className={style.class_list}>
                         <div>{class_links}</div>
+                        <Button
+                        className={style.class_item}
+                        variant="outlined"
+                        color="info"
+                        onClick={(_) => {
+                            router.push(`/classes/create`);
+                        }}
+                        >
+                        +
+                        </Button>
                     </div>
                 </div>
             </div>
