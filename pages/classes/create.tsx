@@ -1,17 +1,35 @@
 import Navbar from "../../components/navbar";
 import { TextField } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import style from "../../styles/poster.create.module.scss";
 import Button from "@mui/material/Button";
 import { ClassData, create_class } from "../../clients/class_service";
+import { getCurrentUserId } from "../../clients/azure_client";
+import { useMsal } from '@azure/msal-react';
+import { findUserByMsftProvider } from "../../clients/user_service";
 
 export default function Classes() {
 
+    const { instance, accounts } = useMsal();
     const [name, setName] = useState<string>("");
     const [semester, setSemester] = useState<string>("");
     const [year, setYear] = useState<string>("");
     const [classCode, setClassCode] = useState<string>("");
     const [courseCode, setCourseCode] = useState<string>("");
+    const [user_id, set_user_id] = useState<string>();
+
+    useEffect(() => {
+        const run = async () => {
+          const id = await getCurrentUserId(instance, accounts);
+          const res = await findUserByMsftProvider("MSFT", id);
+          if (res !== null){
+            set_user_id( _ => res.user.user_id);
+          }
+          
+              
+        }
+        run();
+    }, []);
 
 
     return (
@@ -51,9 +69,10 @@ export default function Classes() {
                     }}/>
 
             <Button  onClick={async (_) => {
+                if(user_id !== undefined) {
                 const classData: ClassData = {
                     "class_id": "",
-                    "lecturer_id": "",
+                    "lecturer_id": user_id,
                     "name": name,
                     "semester": semester,
                     "year": year,
@@ -61,8 +80,9 @@ export default function Classes() {
                     "course_code": courseCode,
                     "projects": []
                 }
+                const res = await create_class(classData)}}
+            }>
                 
-                const res = await create_class(classData)}}>
                     
                     Submit</Button>
             </div>
