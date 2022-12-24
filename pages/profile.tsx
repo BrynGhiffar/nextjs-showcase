@@ -16,6 +16,7 @@ import { callMsGraph } from "../azureGraph.config";
 import { useIsAuthenticated } from '@azure/msal-react';
 import { updateDescription, findUserByMsftProvider, UserData, EMPTY_USER_DATA } from "../clients/user_service";
 import { find_projects_by_user_id, ProjectData } from "../clients/project_service";
+import {find_class_by_lecturer_id, ClassData} from "../clients/class_service";
 import { Button, CircularProgress, Skeleton } from "@mui/material";
 import Footer from "../components/footer";
 import { getCurrentUserId } from "../clients/azure_client";
@@ -105,18 +106,12 @@ type ProfileProps = {
 }
 
 export default function Profile(profileProps: ProfileProps) {
-    type ClassNameId = {
-        name: string;
-        id: string;
-        class_code: string;
-        course_code: string;
-      };
     const { instance, accounts } = useMsal();
     const isAuthenticated = useIsAuthenticated();
     const [userData, setUserData] = useState<UserData>(EMPTY_USER_DATA);
     const [userProjects, setUserProjects] = useState<ProjectData[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [classes, set_classes] = useState<Array<ClassNameId> | null>(null);
+    const [classes, setClasses] = useState<ClassData[]>([]);
     const router = useRouter();
     const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData} />)
 
@@ -146,8 +141,29 @@ export default function Profile(profileProps: ProfileProps) {
         run();
     }, []);
 
+    useEffect(() => {
+        const run = async () => {
+            setIsLoading(_ => true)
+            const classres = await find_class_by_lecturer_id(userData.user_id)
+            const isError = classres.toString().includes("NetworkError");
+            if (!isError) {
+                if (classres.classes !== null)
+                {
+                    const temp = classres.classes
+                    setClasses(_ => temp)
+                }
+            } else {
+                // notify user about an error
+                console.log("Error when fetching classes data")
+            }
+            setIsLoading(_ => false)
+        }
+        run();
+    }, [userData])
+
     var class_links = [];
-    if (classes !== null) {
+    if (classes !== null && classes !== undefined) {
+        console.log(classes)
         for (var i = 0; i < classes.length; i++) {
         const item = classes[i];
         class_links[i] = (
@@ -275,6 +291,16 @@ export default function Profile(profileProps: ProfileProps) {
                     <div className={style.separator}/>
                     <div className={style.class_list}>
                         <div>{class_links}</div>
+                        <Button
+                        className={style.class_item}
+                        variant="outlined"
+                        color="info"
+                        onClick={(_) => {
+                            router.push(`/classes/create`);
+                        }}
+                        >
+                        +
+                        </Button>
                     </div>
                 </div>
             </div>

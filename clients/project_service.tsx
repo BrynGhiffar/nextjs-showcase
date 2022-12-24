@@ -11,7 +11,6 @@ export type ProjectDataFile = {
 export type ProjectData = {
     "project_id": string,
     "projects_total": number,
-    "page_projects_total": number,
     "class_id": string,
     "name": string,
     "members": string[],

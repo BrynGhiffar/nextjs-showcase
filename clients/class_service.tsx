@@ -38,6 +38,11 @@ export type UpdateClassResponse={
     classes: ClassData | null
 };
 
+export type FindClassByLecturerIdResponse={
+    message: string
+    classes: ClassData[] | null
+};
+
 export async function create_class(classData: ClassData): Promise<CreateClassResponse> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -69,6 +74,20 @@ export async function find_class_by_id(class_id: string): Promise<FindClassByIdR
         await fetch(`${HOST}/service/classes/v1/${class_id}`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as FindClassByIdResponse)
+            .catch(error => error);
+    return res;
+}
+
+export async function find_class_by_lecturer_id(lecturer_id: string): Promise<FindClassByLecturerIdResponse> {
+    const requestOptions: RequestInit = {
+        method: 'GET',
+        redirect: 'follow'
+    };
+
+    const res =
+        await fetch(`${HOST}/service/classes/v1/${lecturer_id}/`, requestOptions)
+            .then(response => response.text())
+            .then(result => JSON.parse(result) as FindClassByLecturerIdResponse)
             .catch(error => error);
     return res;
 }
