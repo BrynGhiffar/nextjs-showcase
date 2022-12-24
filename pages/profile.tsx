@@ -86,6 +86,18 @@ function CreateProjectCard() {
     </>)
 }
 
+function CreateClassCard() {
+    return (<>
+        <Link href="/class/create">
+            <div className={`${style.project_card} ${style.create_poster_card}`}>
+                <div className={style.square}>
+                    <Image src={plus_sign} alt="plus sign"/>
+                </div>
+            </div>
+        </Link>
+    </>)
+}
+
 type ProfileProps = {
     userData: UserData
 }
@@ -124,62 +136,120 @@ export default function Profile(profileProps: ProfileProps) {
     }, []);
 
     const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
-
-    return (<div className={style.outer_container}>
-        <Head>
-            <title>Project Showcase - Profile Page</title>
-        </Head>
-        <Navbar isLoading={isLoading}/>
-        {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
-        <div className={style.container}>
-                <div className={style.profile_container}>
-                    {
-                        isLoading ? (
-                            <Skeleton variant="circular" height="250px" width="250px" animation="wave">
-                            </Skeleton>
-                        ) : (
-                            <div className={style.image_profile}>
-                                <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
-                            </div>
-                        )
-                    }
-                    <div className={style.description_profile}>
+    if (userData.role === "Lecturer"){
+        return (<div className={style.outer_container}>
+            <Head>
+                <title>Project Showcase - Profile Page</title>
+            </Head>
+            <Navbar isLoading={isLoading}/>
+            {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
+            <div className={style.container}>
+                    <div className={style.profile_container}>
                         {
                             isLoading ? (
-                                <Skeleton variant="rounded" height={"8vh"} width={"50%"}>
+                                <Skeleton variant="circular" height="250px" width="250px" animation="wave">
                                 </Skeleton>
                             ) : (
-                                <h1>{userData.name}</h1>
+                                <div className={style.image_profile}>
+                                    <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
+                                </div>
                             )
                         }
+                        <div className={style.description_profile}>
+                            {
+                                isLoading ? (
+                                    <Skeleton variant="rounded" height={"8vh"} width={"50%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <h1>{userData.name}</h1>
+                                )
+                            }
+                            {
+                                isLoading ? (
+                                    <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"5vh"} width={"50%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <p>Semester {userData.current_semester}. Batch {userData.graduation_year}</p>
+                                )
+                            }
+                            {
+                                isLoading ? (
+                                    <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"15vh"} width={"100%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <ProfileDescription user_id={userData.user_id} description={userData.description}/>
+                                )
+                            }
+                        </div>
+                    </div>
+                <div>
+                    <div className={style.separator}/>
+                    <div className={style.project_card_container}>
                         {
-                            isLoading ? (
-                                <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"5vh"} width={"50%"}>
-                                </Skeleton>
-                            ) : (
-                                <p>Semester {userData.current_semester}. Batch {userData.graduation_year}</p>
-                            )
+                            userProjects.map(projectToProjectCard)
                         }
-                        {
-                            isLoading ? (
-                                <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"15vh"} width={"100%"}>
-                                </Skeleton>
-                            ) : (
-                                <ProfileDescription user_id={userData.user_id} description={userData.description}/>
-                            )
-                        }
+                        <CreateProjectCard/>
                     </div>
                 </div>
-            <div>
-                <div className={style.separator}/>
-                <div className={style.project_card_container}>
-                    {
-                        userProjects.map(projectToProjectCard)
-                    }
-                    <CreateProjectCard/>
+            </div>
+            <Footer/>
+        </div>);
+    }
+    else if (userData.role === "Student"){
+        return(
+            <div className={style.outer_container}>
+            <Head>
+                <title>Project Showcase - Profile Page</title>
+            </Head>
+            <Navbar isLoading={isLoading}/>
+            {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
+            <div className={style.container}>
+                    <div className={style.profile_container}>
+                        {
+                            isLoading ? (
+                                <Skeleton variant="circular" height="250px" width="250px" animation="wave">
+                                </Skeleton>
+                            ) : (
+                                <div className={style.image_profile}>
+                                    <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
+                                </div>
+                            )
+                        }
+                        <div className={style.description_profile}>
+                            {
+                                isLoading ? (
+                                    <Skeleton variant="rounded" height={"8vh"} width={"50%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <h1>{userData.name}</h1>
+                                )
+                            }
+                            {
+                                isLoading ? (
+                                    <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"5vh"} width={"50%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <p>Binus International Lecturer</p>
+                                )
+                            }
+                            {
+                                isLoading ? (
+                                    <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"15vh"} width={"100%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <ProfileDescription user_id={userData.user_id} description={userData.description}/>
+                                )
+                            }
+                        </div>
+                    </div>
+                <div>
+                    <div className={style.separator}/>
+                    
                 </div>
             </div>
+            <Footer/>
         </div>
-        <Footer/>
-    </div>);
+        );
+    }
+    
 }
