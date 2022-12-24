@@ -172,7 +172,7 @@ export default function Profile(profileProps: ProfileProps) {
             variant="outlined"
             color="info"
             onClick={(_) => {
-                router.push(`/lolbozo`);
+                router.push(`/classes/${item.class_id}`);
             }}
             >
             {item.name.toString()}
@@ -181,7 +181,7 @@ export default function Profile(profileProps: ProfileProps) {
         }
     }
 
-    if (userData.role === "Student"){
+    if (userData.role === "Lecturer"){
         return (<div className={style.outer_container}>
             <Head>
                 <title>Project Showcase - Profile Page</title>
@@ -240,7 +240,7 @@ export default function Profile(profileProps: ProfileProps) {
             <Footer/>
         </div>);
     }
-    else if (userData.role === "Leturer"){
+    else if (userData.role === "Student"){
         return(
             <div className={style.outer_container}>
             <Head>

@@ -32,6 +32,11 @@ export type FindAllUserResponse = {
     users: UserData[]
 }
 
+export type UpdateUserResponse = {
+    message: string,
+    user: UserData
+}
+
 export type UserData = {
     "user_id": string,
     "provider_id": string,
@@ -172,3 +177,24 @@ export async function findAllUser(): Promise<FindAllUserResponse> {
         .catch(error => error);
     return res;
 }
+
+export async function updateUser(userData:UserData): Promise<UpdateUserResponse> {
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    var raw = JSON.stringify(userData);
+
+    const requestOptions: RequestInit = {
+        method: 'PUT',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
+
+    const res: UpdateUserResponse = await fetch(`${HOST}/service/user/v1/`, requestOptions)
+        .then(response => response.text())
+        .then(result => JSON.parse(result))
+        .catch(error => error);
+    return res;
+}
+

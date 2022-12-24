@@ -6,8 +6,9 @@ import Button from "@mui/material/Button";
 import { ClassData, create_class } from "../../clients/class_service";
 import { getCurrentUserId } from "../../clients/azure_client";
 import { useMsal } from '@azure/msal-react';
-import { findUserByMsftProvider } from "../../clients/user_service";
+import { findUserByMsftProvider, UserData } from "../../clients/user_service";
 import { useRouter } from "next/router";
+import { updateUser } from "../../clients/user_service";
 
 export default function Classes() {
 
@@ -17,7 +18,7 @@ export default function Classes() {
     const [year, setYear] = useState<string>("");
     const [classCode, setClassCode] = useState<string>("");
     const [courseCode, setCourseCode] = useState<string>("");
-    const [user_id, set_user_id] = useState<string>();
+    const [user, set_user] = useState<UserData>();
     const router = useRouter();
     const [isLoading, set_is_loading] = useState<boolean>(false);
 
@@ -26,7 +27,7 @@ export default function Classes() {
           const id = await getCurrentUserId(instance, accounts);
           const res = await findUserByMsftProvider("MSFT", id);
           if (res !== null){
-            set_user_id( _ => res.user.user_id);
+            set_user( _ => res.user);
           }
           
               
@@ -73,10 +74,10 @@ export default function Classes() {
 
                 <Button  onClick={async (_) => {
                     set_is_loading(true);
-                    if(user_id !== undefined) {
+                    if(user !== undefined) {
                     const classData: ClassData = {
                         "class_id": "",
-                        "lecturer_id": user_id,
+                        "lecturer_id": user.user_id,
                         "name": name,
                         "semester": semester,
                         "year": year,
@@ -85,6 +86,13 @@ export default function Classes() {
                         "projects": []
                     }
                     const res = await create_class(classData);
+                    const temp = res.classes?.class_id.toString();
+                    if (temp !== undefined){
+                        user.classes.push(temp);
+                    }
+                    const updet = await updateUser(user);
+                    console.log(updet);
+                    
                     router.push("/profile");
                     set_is_loading(false);}}}>
                     Submit
