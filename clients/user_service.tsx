@@ -32,6 +32,11 @@ export type FindAllUserResponse = {
     users: UserData[]
 }
 
+export type UpdateUserResponse = {
+    message: string,
+    user: UserData
+}
+
 export type UserData = {
     "user_id": string,
     "provider_id": string,
@@ -41,7 +46,10 @@ export type UserData = {
     "description": string,
     "profile_pic": string,
     "graduation_year": string,
-    "current_semester": string
+    "current_semester": string,
+    "role": string,
+    "classes": string[]
+    
 };
 
 export const EMPTY_USER_DATA: UserData = {
@@ -53,7 +61,9 @@ export const EMPTY_USER_DATA: UserData = {
     "description": "",
     "profile_pic": "",
     "graduation_year": "",
-    "current_semester": ""
+    "current_semester": "",
+    "role": "",
+    "classes": []
 };
 
 export async function updateDescription(user_id: string, new_description: string): Promise<UpdateUserDescriptionResponse> {
@@ -93,7 +103,9 @@ export async function createUser(providerId: string, useremail: string, username
         "email": useremail,
         "profile_pic": "",
         "graduation_year": "2025",
-        "current_semester": "3"
+        "current_semester": "3",
+        "role": "",
+        "classes": []
     });
 
     var requestOptions : RequestInit = {
@@ -165,3 +177,24 @@ export async function findAllUser(): Promise<FindAllUserResponse> {
         .catch(error => error);
     return res;
 }
+
+export async function updateUser(userData:UserData): Promise<UpdateUserResponse> {
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    var raw = JSON.stringify(userData);
+
+    const requestOptions: RequestInit = {
+        method: 'PUT',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
+
+    const res: UpdateUserResponse = await fetch(`${HOST}/service/user/v1/`, requestOptions)
+        .then(response => response.text())
+        .then(result => JSON.parse(result))
+        .catch(error => error);
+    return res;
+}
+
