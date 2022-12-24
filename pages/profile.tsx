@@ -36,10 +36,12 @@ type ProfileDescriptionProps = {
 }
 
 function ProfileDescription(profileDescriptionProps: ProfileDescriptionProps) {
+
     const { user_id, description: propsDescription } = profileDescriptionProps;
     const [editting, setEditting] = useState(false);
     const [descriptionBuffer, setDescriptionBuffer] = useState("");
     const [description, setDescription] = useState("");
+    
 
     useEffect(() => {
         setDescriptionBuffer(propsDescription);
@@ -103,11 +105,20 @@ type ProfileProps = {
 }
 
 export default function Profile(profileProps: ProfileProps) {
+    type ClassNameId = {
+        name: string;
+        id: string;
+        class_code: string;
+        course_code: string;
+      };
     const { instance, accounts } = useMsal();
     const isAuthenticated = useIsAuthenticated();
     const [userData, setUserData] = useState<UserData>(EMPTY_USER_DATA);
     const [userProjects, setUserProjects] = useState<ProjectData[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [classes, set_classes] = useState<Array<ClassNameId> | null>(null);
+    const router = useRouter();
+    const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData} />)
 
     useEffect(() => {
         const run = async () => {
@@ -135,7 +146,25 @@ export default function Profile(profileProps: ProfileProps) {
         run();
     }, []);
 
-    const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
+    var class_links = [];
+    if (classes !== null) {
+        for (var i = 0; i < classes.length; i++) {
+        const item = classes[i];
+        class_links[i] = (
+            <Button
+            className={style.class_item}
+            variant="outlined"
+            color="info"
+            onClick={(_) => {
+                router.push(`/lolbozo`);
+            }}
+            >
+            {item.name.toString()}
+            </Button>
+        );
+        }
+    }
+
     if (userData.role === "Lecturer"){
         return (<div className={style.outer_container}>
             <Head>
@@ -199,7 +228,7 @@ export default function Profile(profileProps: ProfileProps) {
         return(
             <div className={style.outer_container}>
             <Head>
-                <title>Project Showcase - Profile Page</title>
+                <title>Lecturer Classes - Profile Page</title>
             </Head>
             <Navbar isLoading={isLoading}/>
             {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
@@ -244,7 +273,9 @@ export default function Profile(profileProps: ProfileProps) {
                     </div>
                 <div>
                     <div className={style.separator}/>
-                    
+                    <div className={style.class_list}>
+                        <div>{class_links}</div>
+                    </div>
                 </div>
             </div>
             <Footer/>
