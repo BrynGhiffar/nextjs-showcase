@@ -165,7 +165,7 @@ export default function Profile(profileProps: ProfileProps) {
         }
     }
 
-    if (userData.role === "Lecturer"){
+    if (userData.role === "Student"){
         return (<div className={style.outer_container}>
             <Head>
                 <title>Project Showcase - Profile Page</title>
@@ -224,7 +224,7 @@ export default function Profile(profileProps: ProfileProps) {
             <Footer/>
         </div>);
     }
-    else if (userData.role === "Student"){
+    else if (userData.role === "Leturer"){
         return(
             <div className={style.outer_container}>
             <Head>
