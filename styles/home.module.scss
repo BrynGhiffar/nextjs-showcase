@@ -20,6 +20,27 @@
     padding-right: 10%;
     align-content: center;
     background-color: white;
+}
 
+.page_container {
+    $base-color: lighten(grey, 40%);
+    $hover-color: lighten(grey, 35%);
+    background-color: #f2f2f2;
 
+    .container {
+        background-color: white;
+        outline: 0.1px solid gray;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+        padding: 0 100px;
+        padding-top: 100px;
+        margin: 0 150px;
+        padding-bottom: 2.5rem;
+
+        .project_card_container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+    }
 }
