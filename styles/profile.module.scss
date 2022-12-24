@@ -206,6 +206,7 @@ $debug-mode: false;
         outline: 1px solid red;
     }
 }
+
 .project_card_container {
     @if $debug-mode {
         outline: 1px solid red;
@@ -229,5 +230,28 @@ $debug-mode: false;
         overflow-y: hidden;
     }
 }
+
+.class_list {
+    // outline: 1px solid blue;
+    display: flex;
+    gap: 0.5rem;
+    .class_item {
+      $base-color: lighten(grey, 40%);
+      $hover-color: lighten(grey, 35%);
+      border-radius: 10px;
+      padding: 0.5rem 1rem 0.5rem 1rem;
+      margin-right: 10px;
+      background-color: $base-color;
+      transition-property: all;
+      transition-timing-function: ease-out;
+      transition-duration: 200ms;
+      transition-delay: 100ms;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $hover-color;
+      }
+    }
+  }
 
 }
