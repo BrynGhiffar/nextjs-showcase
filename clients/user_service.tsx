@@ -41,7 +41,10 @@ export type UserData = {
     "description": string,
     "profile_pic": string,
     "graduation_year": string,
-    "current_semester": string
+    "current_semester": string,
+    "role": string,
+    "classes": string[]
+    
 };
 
 export const EMPTY_USER_DATA: UserData = {
@@ -53,7 +56,9 @@ export const EMPTY_USER_DATA: UserData = {
     "description": "",
     "profile_pic": "",
     "graduation_year": "",
-    "current_semester": ""
+    "current_semester": "",
+    "role": "",
+    "classes": []
 };
 
 export async function updateDescription(user_id: string, new_description: string): Promise<UpdateUserDescriptionResponse> {
@@ -93,7 +98,9 @@ export async function createUser(providerId: string, useremail: string, username
         "email": useremail,
         "profile_pic": "",
         "graduation_year": "2025",
-        "current_semester": "3"
+        "current_semester": "3",
+        "role": "",
+        "classes": []
     });
 
     var requestOptions : RequestInit = {
