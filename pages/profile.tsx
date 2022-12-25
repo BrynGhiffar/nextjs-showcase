@@ -138,7 +138,7 @@ export default function Profile(profileProps: ProfileProps) {
                             </Skeleton>
                         ) : (
                             <div className={style.image_profile}>
-                                <Image src={profile} alt="profile picture" className={style.border_circle} width="250" height="250"/>
+                                <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
                             </div>
                         )
                     }
