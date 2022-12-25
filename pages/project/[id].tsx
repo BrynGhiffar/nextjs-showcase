@@ -29,6 +29,7 @@ import { getCurrentUserId } from "../../clients/azure_client";
 import { useMsal } from "@azure/msal-react";
 import { findUserByMsftProvider } from "../../clients/user_service";
 import { create_comment } from "../../clients/comment_service";
+import { Divider } from "@mui/material"
 
 const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
@@ -187,6 +188,17 @@ export default function ProjectPage() {
                 opts={opts}
                 onReady={onPlayerReady}
             />
+           <Divider variant="fullWidth" style={{ margin: "15px 0" }}  />
+            <h2 className={style.scoring_title}>Score:</h2>
+            <div className={style.lec_scoring}>
+              <TextField className={style.input_score} style={{marginRight: "10px", height: "10px"}} size="small" id="outlined-basic" label="Score" variant="outlined" />
+              <h2>/100</h2>
+              <Button
+                style={{marginTop:"15px", marginLeft: "15px", height: "40px"}}
+                variant="contained"
+                className={style.scoring_send_button}
+                startIcon={<SendIcon />}/>
+            </div>
           </div>
         </div>
         <div className={style.lower_container}>
