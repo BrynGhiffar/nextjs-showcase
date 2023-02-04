@@ -16,7 +16,8 @@ import { callMsGraph } from "../azureGraph.config";
 import { useIsAuthenticated } from '@azure/msal-react';
 import { updateDescription, findUserByMsftProvider, UserData, EMPTY_USER_DATA } from "../clients/user_service";
 import { find_projects_by_user_id, ProjectData } from "../clients/project_service";
-import { Button, Skeleton } from "@mui/material";
+import {find_class_by_lecturer_id, ClassData} from "../clients/class_service";
+import { Button, CircularProgress, Skeleton } from "@mui/material";
 import Footer from "../components/footer";
 import { getCurrentUserId } from "../clients/azure_client";
 import { useRouter } from "next/router";
@@ -36,10 +37,12 @@ type ProfileDescriptionProps = {
 }
 
 function ProfileDescription(profileDescriptionProps: ProfileDescriptionProps) {
+
     const { user_id, description: propsDescription } = profileDescriptionProps;
     const [editting, setEditting] = useState(false);
     const [descriptionBuffer, setDescriptionBuffer] = useState("");
     const [description, setDescription] = useState("");
+    
 
     useEffect(() => {
         setDescriptionBuffer(propsDescription);
@@ -86,6 +89,18 @@ function CreateProjectCard() {
     </>)
 }
 
+function CreateClassCard() {
+    return (<>
+        <Link href="/class/create">
+            <div className={`${style.project_card} ${style.create_poster_card}`}>
+                <div className={style.square}>
+                    <Image src={plus_sign} alt="plus sign"/>
+                </div>
+            </div>
+        </Link>
+    </>)
+}
+
 type ProfileProps = {
     userData: UserData
 }
@@ -96,6 +111,9 @@ export default function Profile(profileProps: ProfileProps) {
     const [userData, setUserData] = useState<UserData>(EMPTY_USER_DATA);
     const [userProjects, setUserProjects] = useState<ProjectData[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [classes, setClasses] = useState<ClassData[]>([]);
+    const router = useRouter();
+    const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData} />)
 
     useEffect(() => {
         const run = async () => {
@@ -123,6 +141,56 @@ export default function Profile(profileProps: ProfileProps) {
         run();
     }, []);
 
+    useEffect(() => {
+        const run = async () => {
+            setIsLoading(_ => true)
+            const classres = await find_class_by_lecturer_id(userData.user_id)
+            const isError = classres.toString().includes("NetworkError");
+            if (!isError) {
+                if (classres.classes !== null)
+                {
+                    const temp = classres.classes
+                    setClasses(_ => temp)
+                }
+            } else {
+                // notify user about an error
+                console.log("Error when fetching classes data")
+            }
+            setIsLoading(_ => false)
+        }
+        run();
+    }, [userData])
+
+    var class_links = [];
+    if (classes !== null && classes !== undefined) {
+        console.log(classes)
+        for (var i = 0; i < classes.length; i++) {
+        const item = classes[i];
+        class_links[i] = (
+            <Button
+            className={style.class_item}
+            variant="outlined"
+            color="info"
+            onClick={(_) => {
+                router.push(`/classes/${item.class_id}`);
+            }}
+            >
+            {item.name.toString()}
+            </Button>
+        );
+        }
+    }
+
+    if (userData.role === "Lecturer"){
+        return (<div className={style.outer_container}>
+            <Head>
+                <title>Project Showcase - Profile Page</title>
+            </Head>
+            <Navbar isLoading={isLoading}/>
+            {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
+            <div className={style.container}>
+                    <div className={style.profile_container}>
+                    
     const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
 
     return (<div className={style.outer_container}>
@@ -145,38 +213,121 @@ export default function Profile(profileProps: ProfileProps) {
                     <div className={style.description_profile}>
                         {
                             isLoading ? (
-                                <Skeleton variant="rounded" height={"8vh"} width={"50%"}>
+                                <Skeleton variant="circular" height="250px" width="250px" animation="wave">
                                 </Skeleton>
                             ) : (
-                                <h1>{userData.name}</h1>
+                                <div className={style.image_profile}>
+                                    <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
+                                </div>
                             )
                         }
+                        <div className={style.description_profile}>
+                            {
+                                isLoading ? (
+                                    <Skeleton variant="rounded" height={"8vh"} width={"50%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <h1>{userData.name}</h1>
+                                )
+                            }
+                            {
+                                isLoading ? (
+                                    <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"5vh"} width={"50%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <p>Semester {userData.current_semester}. Batch {userData.graduation_year}</p>
+                                )
+                            }
+                            {
+                                isLoading ? (
+                                    <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"15vh"} width={"100%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <ProfileDescription user_id={userData.user_id} description={userData.description}/>
+                                )
+                            }
+                        </div>
+                    </div>
+                <div>
+                    <div className={style.separator}/>
+                    <div className={style.project_card_container}>
                         {
-                            isLoading ? (
-                                <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"5vh"} width={"50%"}>
-                                </Skeleton>
-                            ) : (
-                                <p>Semester {userData.current_semester}. Batch {userData.graduation_year}</p>
-                            )
+                            userProjects.map(projectToProjectCard)
                         }
-                        {
-                            isLoading ? (
-                                <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"15vh"} width={"100%"}>
-                                </Skeleton>
-                            ) : (
-                                <ProfileDescription user_id={userData.user_id} description={userData.description}/>
-                            )
-                        }
+                        <CreateProjectCard/>
                     </div>
                 </div>
-                <div className={style.separator}/>
-                <div className={style.project_card_container}>
-                    {
-                        userProjects.map(projectToProjectCard)
-                    }
-                    <CreateProjectCard/>
+            </div>
+            <Footer/>
+        </div>);
+    }
+    else if (userData.role === "Student"){
+        return(
+            <div className={style.outer_container}>
+            <Head>
+                <title>Lecturer Classes - Profile Page</title>
+            </Head>
+            <Navbar isLoading={isLoading}/>
+            {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
+            <div className={style.container}>
+                    <div className={style.profile_container}>
+                        {
+                            isLoading ? (
+                                <Skeleton variant="circular" height="250px" width="250px" animation="wave">
+                                </Skeleton>
+                            ) : (
+                                <div className={style.image_profile}>
+                                    <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
+                                </div>
+                            )
+                        }
+                        <div className={style.description_profile}>
+                            {
+                                isLoading ? (
+                                    <Skeleton variant="rounded" height={"8vh"} width={"50%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <h1>{userData.name}</h1>
+                                )
+                            }
+                            {
+                                isLoading ? (
+                                    <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"5vh"} width={"50%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <p>Binus International Lecturer</p>
+                                )
+                            }
+                            {
+                                isLoading ? (
+                                    <Skeleton style={{marginTop: "1rem"}}variant="rounded" height={"15vh"} width={"100%"}>
+                                    </Skeleton>
+                                ) : (
+                                    <ProfileDescription user_id={userData.user_id} description={userData.description}/>
+                                )
+                            }
+                        </div>
+                    </div>
+                <div>
+                    <div className={style.separator}/>
+                    <div className={style.class_list}>
+                        <div>{class_links}</div>
+                        <Button
+                        className={style.class_item}
+                        variant="outlined"
+                        color="info"
+                        onClick={(_) => {
+                            router.push(`/classes/create`);
+                        }}
+                        >
+                        +
+                        </Button>
+                    </div>
                 </div>
+            </div>
+            <Footer/>
         </div>
-        <Footer/>
-    </div>);
+        );
+    }
+    
 }
