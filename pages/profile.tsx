@@ -190,6 +190,27 @@ export default function Profile(profileProps: ProfileProps) {
             {isLoading ? <CircularProgress color="inherit" className={style.progress_circle}/> : ""}
             <div className={style.container}>
                     <div className={style.profile_container}>
+                    
+    const projectToProjectCard = (projectData: ProjectData) => (<ProjectCard key={projectData.project_id} projectData={projectData}/>)
+
+    return (<div className={style.outer_container}>
+        <Head>
+            <title>Project Showcase - Profile Page</title>
+        </Head>
+        <Navbar isLoading={isLoading}/>
+        <div className={style.container}>
+                <div className={style.profile_container}>
+                    {
+                        isLoading ? (
+                            <Skeleton variant="circular" height="250px" width="250px" animation="wave">
+                            </Skeleton>
+                        ) : (
+                            <div className={style.image_profile}>
+                                <Image src={noimage} alt="profile picture" className={style.border_circle} width="250" height="250"/>
+                            </div>
+                        )
+                    }
+                    <div className={style.description_profile}>
                         {
                             isLoading ? (
                                 <Skeleton variant="circular" height="250px" width="250px" animation="wave">

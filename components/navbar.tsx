@@ -56,6 +56,11 @@ export default function Navbar({ isLoading }: NavbarProps) {
                         Profile
                     </Link>
                 </div> : <div></div>}
+                {isAuthenticated ? <div className={navbarStyle.options}>
+                <Link href="/poster/create">
+                       Create Project
+                </Link>
+                </div> : <div></div>}
                 <div className={navbarStyle.options} onClick={isAuthenticated ? handleLogout : handleLogin}>
                     {isAuthenticated ? <div> Logout </div> : <div> Login </div>}
                 </div>

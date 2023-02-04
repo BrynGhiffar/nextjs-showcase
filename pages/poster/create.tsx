@@ -41,6 +41,9 @@ type Member = {
 type Project = {
     "name": string,
     "short_description": string,
+    "course_name": string,
+    "course_code": string,
+    "lecturer_name": string,
     "description": string,
     "youtube_link": string,
     "github_link": string,
@@ -72,6 +75,9 @@ const EMPTY_PROJECT: Project = {
     "name" : "",
     "short_description": "",
     "description": "",
+    "course_name": "",
+    "course_code": "",
+    "lecturer_name": "",
     "youtube_link": "",
     "github_link": "",
     "poster_image": null,
@@ -90,6 +96,21 @@ function ProjectInformation({current_project, set_project} : ProjectInformationP
     const set_project_name = (set_project: ProjectSetter, new_name: string) => {
         set_project(project => {
             return { ...project, name: new_name };
+        });
+    };
+    const set_project_course_name = (set_project: ProjectSetter, new_course_name: string) => {
+        set_project(project => {
+            return { ...project, course_name: new_course_name };
+        });
+    };
+    const set_project_course_code = (set_project: ProjectSetter, new_course_code: string) => {
+        set_project(project => {
+            return { ...project, course_code: new_course_code};
+        });
+    };
+    const set_project_lecturer_name = (set_project: ProjectSetter, new_lecturer_name: string) => {
+        set_project(project => {
+            return { ...project, lecturer_name: new_lecturer_name};
         });
     };
     
@@ -113,6 +134,10 @@ function ProjectInformation({current_project, set_project} : ProjectInformationP
     const project_name = current_project.name;
     const project_description = current_project.description;
     const project_short_description = current_project.short_description;
+    const project_course_name = current_project.course_name;
+    const project_course_code = current_project.course_code;
+    const project_lecturer_name = current_project.lecturer_name;
+    
     const [usingReadme, setUsingReadme] = useState(false);
     return (
         <>
@@ -123,6 +148,29 @@ function ProjectInformation({current_project, set_project} : ProjectInformationP
                     <TextField label="Project Name" variant="outlined" value={project_name} fullWidth onChange={e => {
                         const value = e.target.value;
                         set_project_name(set_project, value);
+                    }}/>
+                </div>
+                
+                <h3>Course Name</h3>
+                <div>
+                    <TextField label="Your course Name" variant="outlined" value={project_course_name} fullWidth onChange={e => {
+                        const value = e.target.value;
+                        set_project_course_name(set_project, value);
+                    }}/>
+                </div>
+                <h3>Course Code</h3>
+                
+                <div>
+                    <TextField label="Your course code" variant="outlined" value={project_course_code} fullWidth onChange={e => {
+                        const value = e.target.value;
+                        set_project_course_code(set_project, value);
+                    }}/>
+                </div>
+                <h3>Lecturer Name</h3>
+                <div>
+                    <TextField label="Your Lecturer's Name" variant="outlined" value={project_course_code} fullWidth onChange={e => {
+                        const value = e.target.value;
+                        set_project_lecturer_name(set_project, value);
                     }}/>
                 </div>
                 <h3>Project Description</h3>
