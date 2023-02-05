@@ -1,3 +1,6 @@
+# Before building the image for production change the redirectUri in the azureAuthConfig
+# Before building change the domains in next.config.js
+
 # To build docker image:
 # docker image build -t nextjs-showcase .
 
