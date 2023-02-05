@@ -1,6 +1,3 @@
-import { PROJECTSERVICE_HOST } from "../env";
-const HOST = PROJECTSERVICE_HOST;
-
 export type ProjectDataFile = {
     name: string,
     base64: string,
@@ -10,7 +7,6 @@ export type ProjectDataFile = {
 
 export type ProjectData = {
     "project_id": string,
-    "projects_total": number,
     "class_id": string,
     "name": string,
     "members": string[],
@@ -74,7 +70,7 @@ export type FindProjectsByNameResponse = {
 }
 
 
-export async function create_project(projectData: ProjectData): Promise<CreateProjectResponse> {
+export async function create_project(PROJECRSERVICE_HOST: string, projectData: ProjectData): Promise<CreateProjectResponse> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -88,47 +84,47 @@ export async function create_project(projectData: ProjectData): Promise<CreatePr
     };
 
     const res: CreateProjectResponse = 
-        await fetch(`${HOST}/service/project/v1/`, requestOptions)
+        await fetch(`${PROJECRSERVICE_HOST}/service/project/v1/`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as CreateProjectResponse)
             .catch(error => error);
     return res;
 }
 
-export async function find_projects_by_user_id(user_id: string): Promise<FindProjectsByUserIdResponse> {
+export async function find_projects_by_user_id(PROJECRSERVICE_HOST: string, user_id: string): Promise<FindProjectsByUserIdResponse> {
     const requestOptions: RequestInit = {
         method: 'GET',
         redirect: 'follow'
     };
 
     const res =
-        await fetch(`${HOST}/service/project/v1/user/${user_id}`, requestOptions)
+        await fetch(`${PROJECRSERVICE_HOST}/service/project/v1/user/${user_id}`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as FindProjectsByUserIdResponse)
             .catch(error => error);
     return res;
 }
 
-export async function find_project_by_project_id(project_id: string): Promise<FindProjectByProjectIdResponse> {
+export async function find_project_by_project_id(PROJECTSERVICE_HOST: string, project_id: string): Promise<FindProjectByProjectIdResponse> {
     const requestOptions: RequestInit = {
         method: 'GET',
         redirect: 'follow'
     };
 
-    const res: FindProjectByProjectIdResponse = await fetch(`${HOST}/service/project/v1/${project_id}`, requestOptions)
+    const res: FindProjectByProjectIdResponse = await fetch(`${PROJECTSERVICE_HOST}/service/project/v1/${project_id}`, requestOptions)
                     .then(response => response.text())
                     .then(result => JSON.parse(result))
                     .catch(error => error);
     return res;
 }
 
-export async function find_all_projects(): Promise<FindAllProjectsResponse> {
+export async function find_all_projects(PROJECTSERVICE_HOST: string): Promise<FindAllProjectsResponse> {
     const requestOptions: RequestInit = {
         method: 'GET',
         redirect: 'follow'
     };
 
-    const res: FindAllProjectsResponse = await fetch(`${HOST}/service/project/v1/`, requestOptions)
+    const res: FindAllProjectsResponse = await fetch(`${PROJECTSERVICE_HOST}/service/project/v1/`, requestOptions)
                     .then(response => response.text())
                     .then(result => JSON.parse(result))
                     .catch(error => error);
@@ -136,7 +132,7 @@ export async function find_all_projects(): Promise<FindAllProjectsResponse> {
 }
 
 
-export async function find_project_by_name(project_title: string, page: number, projects_per_page: number): Promise<FindProjectsByNameResponse> {
+export async function find_project_by_name(PROJECTSERVICE_HOST: string, project_title: string, page: number, projects_per_page: number): Promise<FindProjectsByNameResponse> {
     const requestOptions: RequestInit = {
         method: 'GET',
         redirect: 'follow'
@@ -144,7 +140,7 @@ export async function find_project_by_name(project_title: string, page: number, 
 
     const name: string = encodeURIComponent(project_title);
 
-    const res: FindProjectsByNameResponse = await fetch(`${HOST}/service/project/v1/project/?project_title=${name}&page=${page}&projects_per_page=${projects_per_page}`, requestOptions)
+    const res: FindProjectsByNameResponse = await fetch(`${PROJECTSERVICE_HOST}/service/project/v1/project/?project_title=${name}&page=${page}&projects_per_page=${projects_per_page}`, requestOptions)
                     .then(response => response.text())
                     .then(result => JSON.parse(result))
                     .catch(error => error);

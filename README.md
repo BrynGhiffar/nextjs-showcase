@@ -1,5 +1,22 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Environment variables in windows
+Set the below environment variables for windows powershell
+```powershell
+    $env:COMMENTSERVICE_HOST = "http://localhost:8002" # host of the comment service
+    $env:PROJECTSERVICE_HOST = "http://localhost:8001" # host of the project service
+    $env:USERSERVICE_HOST = "http://localhost:8000" # host of the user service
+    $env:FRONTEND_HOST = "http://localhost:3000" # host of the frontend
+    $env:IMAGE_HOST = "http://localhost"
+```
+To view environment variables simply:
+```powershell
+    $env:COMMENTSERVICE_HOST
+    $env:PROJECTSERVICE_HOST
+    $env:USERSERVICE_HOST
+    $env:FRONTEND_HOST
+```
+
 ## Getting Started
 
 First, run the development server:

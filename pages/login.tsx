@@ -11,7 +11,19 @@ import Image from "next/image";
 import {getCurrentUser} from "../clients/azure_service";
 import {findCreateUserMsftProviderId} from "../clients/user_service"
 
-const Login: NextPage = () => {
+export async function getStaticProps() {
+  return {
+    props: {
+      USERSERVICE_HOST: process.env.USERSERVICE_HOST!
+    }
+  };
+}
+
+type LoginPageProps = {
+  USERSERVICE_HOST: string
+}
+
+const Login = ({ USERSERVICE_HOST }: LoginPageProps) => {
   // the index page will be the login page
   const { instance, accounts } = useMsal();
   const isAuthenticated = useIsAuthenticated();
@@ -46,7 +58,7 @@ const Login: NextPage = () => {
       if (isAuthenticated) {
         const user = await getCurrentUser(instance, accounts);
         if (user !== null){
-          const res = await findCreateUserMsftProviderId(user.providerId,user.username, user.useremail);
+          const res = await findCreateUserMsftProviderId(USERSERVICE_HOST, user.providerId,user.username, user.useremail);
           console.log(res)
           router.push("/");
 

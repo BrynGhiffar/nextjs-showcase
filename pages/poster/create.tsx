@@ -398,9 +398,21 @@ function LinkUpload({ current_project, set_project, set_is_loading } : LinkUploa
 }
 
 type SetIsLoading = Dispatch<SetStateAction<boolean>>;
-type ContributorProps = { current_project: Project, set_project: Dispatch<SetStateAction<Project>>, set_is_loading: SetIsLoading }
+type ContributorProps = {
+    USERSERVICE_HOST: string,
+    PROJECTSERVICE_HOST: string,
+    current_project: Project,
+    set_project: Dispatch<SetStateAction<Project>>,
+    set_is_loading: SetIsLoading
+};
 
-function Contributor({ current_project, set_project, set_is_loading } : ContributorProps) {
+function Contributor({
+    current_project,
+    set_project,
+    set_is_loading,
+    USERSERVICE_HOST,
+    PROJECTSERVICE_HOST
+} : ContributorProps) {
     const router = useRouter();
     const project_contributor = current_project.members;
     const add_member = (new_member: Member) => {
@@ -439,7 +451,7 @@ function Contributor({ current_project, set_project, set_is_loading } : Contribu
         const run = async () => {
             // find all users.
             set_is_loading(true);
-            const res = await findAllUser();
+            const res = await findAllUser(USERSERVICE_HOST);
             if (res !== undefined) {
                 const users = res.users;
                 const members: Member[] = users.map(u => ({"id": u.user_id, "name": u.name}));
@@ -510,10 +522,11 @@ function Contributor({ current_project, set_project, set_is_loading } : Contribu
                             "description": current_project.description,
                             "youtube_link": current_project.youtube_link,
                             "github_link": current_project.github_link,
-                            "projects_total": 0,
-                            "page_projects_total": 0
+                            "grade": 0,
+                            "lecturer_comment": "",
+                            "lecturer_id": ""
                         };
-                        const res = await create_project(projectData);
+                        const res = await create_project(PROJECTSERVICE_HOST, projectData);
                         set_project(_ => EMPTY_PROJECT);
                         set_is_loading(false);
                         router.push("/profile");
@@ -530,13 +543,21 @@ const UPLOAD_LINK = "UPLOAD_LINK";
 const CONTRIBUTORS = "CONTRIBUTORS";
 
 type FormHandlerProps = {
+    USERSERVICE_HOST: string,
+    PROJECTSERVICE_HOST: string,
     component: string,
     current_project: Project,
     set_project: Dispatch<SetStateAction<Project>>,
     set_is_loading: SetIsLoading
 }
 
-function CreationFormHandler({component, current_project, set_project, set_is_loading} : FormHandlerProps) {
+function CreationFormHandler({
+    component, current_project,
+    set_project,
+    set_is_loading,
+    USERSERVICE_HOST,
+    PROJECTSERVICE_HOST
+} : FormHandlerProps) {
 
     if (component == PROJECT_INFORMATION) {
         return (<ProjectInformation current_project={current_project} set_project={set_project}/>);
@@ -547,13 +568,35 @@ function CreationFormHandler({component, current_project, set_project, set_is_lo
     }
 
     if (component == CONTRIBUTORS) {
-        return (<Contributor current_project={current_project} set_project={set_project} set_is_loading={set_is_loading}/>);
+        return (<Contributor
+                current_project={current_project}
+                set_project={set_project}
+                set_is_loading={set_is_loading}
+                PROJECTSERVICE_HOST={PROJECTSERVICE_HOST}
+                USERSERVICE_HOST={USERSERVICE_HOST}
+               />);
     }
 
     return (<></>);
 }
 
-export default function CreatePoster() {
+export async function getStaticProps() {
+    return {
+        props: {
+            USERSERVICE_HOST: process.env.USERSERVICE_HOST!,
+            PROJECTSERVICE_HOST: process.env.PROJECTSERVICE_HOST!,
+        }
+    }
+}
+
+type CreatePosterProps = {
+    USERSERVICE_HOST: string,
+    PROJECTSERVICE_HOST: string,
+};
+
+export default function CreatePoster({
+    USERSERVICE_HOST, PROJECTSERVICE_HOST
+}: CreatePosterProps) {
 
     const { instance, accounts } = useMsal();
     const [stage, setStage] = useState(PROJECT_INFORMATION);
@@ -564,7 +607,7 @@ export default function CreatePoster() {
         const run = async () => {
             const provider = "MSFT";
             const provider_id = await getCurrentUserId(instance, accounts);
-            const res = await findUserByMsftProvider(provider, provider_id);
+            const res = await findUserByMsftProvider(USERSERVICE_HOST, provider, provider_id);
             const member: Member = { name: res.user.name, id: res.user.user_id };
             set_project(p => ({...p, members: p.members.concat(member)}));
         };
@@ -608,7 +651,14 @@ export default function CreatePoster() {
                     })()}>Contributors/Team members</p>
                 </div>
                 <div className={style.project_creation_stage}>
-                    <CreationFormHandler component={stage} current_project={current_project} set_project={set_project} set_is_loading={setIsLoading}/>
+                    <CreationFormHandler
+                        component={stage}
+                        current_project={current_project}
+                        set_project={set_project}
+                        set_is_loading={setIsLoading}
+                        USERSERVICE_HOST={USERSERVICE_HOST}
+                        PROJECTSERVICE_HOST={PROJECTSERVICE_HOST}
+                    />
                 </div>
             </div>
         </div>

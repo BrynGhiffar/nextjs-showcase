@@ -7,6 +7,7 @@ import { useState } from "react";
 import { UserData } from "../clients/user_service";
 
 type CommentCardProps = {
+    USERSERVICE_HOST: string,
     commentData: CommentData
 }
 
@@ -41,14 +42,14 @@ function relativeTimePast(date_string: string) {
     }
 }
 
-export default function CommentCard({ commentData }: CommentCardProps) {
+export default function CommentCard({ USERSERVICE_HOST, commentData }: CommentCardProps) {
     const router = useRouter();
     const [user, setUser] = useState<UserData>();
 
 
     useEffect(() => {
         const run = async () => {
-            const res = await findUserById(commentData.user_id)
+            const res = await findUserById(USERSERVICE_HOST, commentData.user_id)
             if (res !== null) {
                 const user = res.user;
                 setUser(_ => user);

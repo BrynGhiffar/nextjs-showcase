@@ -1,7 +1,3 @@
-import { USERSERVICE_HOST } from "../env";
-
-const HOST = USERSERVICE_HOST;
-
 export type UpdateUserDescriptionRequest = {
     user_id: string,
     description: string
@@ -66,7 +62,7 @@ export const EMPTY_USER_DATA: UserData = {
     "classes": []
 };
 
-export async function updateDescription(user_id: string, new_description: string): Promise<UpdateUserDescriptionResponse> {
+export async function updateDescription(USERSERVICE_HOST: string, user_id: string, new_description: string): Promise<UpdateUserDescriptionResponse> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -84,7 +80,7 @@ export async function updateDescription(user_id: string, new_description: string
     };
 
     const res: UpdateUserDescriptionResponse =
-        await fetch(`${HOST}/service/user/v1/description`, requestOptions)
+        await fetch(`${USERSERVICE_HOST}/service/user/v1/description`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as UpdateUserDescriptionResponse)
             .catch(error => error);
@@ -92,7 +88,7 @@ export async function updateDescription(user_id: string, new_description: string
 
 }
 
-export async function createUser(providerId: string, useremail: string, username: string): Promise<CreateMsftUserResponse> {
+export async function createUser(USERSERVICE_HOST: string, providerId: string, useremail: string, username: string): Promise<CreateMsftUserResponse> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -115,18 +111,18 @@ export async function createUser(providerId: string, useremail: string, username
         redirect: 'follow'
     };
 
-    const res : CreateMsftUserResponse = await fetch(`${HOST}/service/user/v1`, requestOptions)
+    const res : CreateMsftUserResponse = await fetch(`${USERSERVICE_HOST}/service/user/v1`, requestOptions)
         .then(response => response.text())
         .then(result => JSON.parse(result))
         .catch(error => error);
     return res;
 }
 
-export async function findCreateUserMsftProviderId(providerId: string, username: string, useremail: string): Promise<FindUserByIdResponse>{
-    const res = await findUserByMsftProvider("MSFT", providerId);
+export async function findCreateUserMsftProviderId(USERSERVICE_HOST: string, providerId: string, username: string, useremail: string): Promise<FindUserByIdResponse>{
+    const res = await findUserByMsftProvider(USERSERVICE_HOST, "MSFT", providerId);
     console.log("find result", res);
     if (res.user === null){
-        const res_create = await createUser(providerId, useremail, username);
+        const res_create = await createUser(USERSERVICE_HOST, providerId, useremail, username);
         console.log("create result", res_create);
         return res_create;
     }
@@ -135,14 +131,14 @@ export async function findCreateUserMsftProviderId(providerId: string, username:
     }
 
 }
-export async function findUserById(user_id: string): Promise<FindUserByIdResponse> {
+export async function findUserById(USERSERVICE_HOST: string, user_id: string): Promise<FindUserByIdResponse> {
     var requestOptions: RequestInit = {
         method: 'GET',
         redirect: 'follow'
     };
 
     const res: FindUserByIdResponse =
-        await fetch(`${HOST}/service/user/v1/${user_id}`, requestOptions)
+        await fetch(`${USERSERVICE_HOST}/service/user/v1/${user_id}`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as FindUserByIdResponse)
             .catch(error => error);
@@ -150,7 +146,7 @@ export async function findUserById(user_id: string): Promise<FindUserByIdRespons
 
 }
 
-export async function findUserByMsftProvider(provider: string, providerId: string): Promise<FindUserByProviderResponse> {
+export async function findUserByMsftProvider(USERSERVICE_HOST: string, provider: string, providerId: string): Promise<FindUserByProviderResponse> {
 
     const requestOptions: RequestInit = {
         method: 'GET',
@@ -158,27 +154,27 @@ export async function findUserByMsftProvider(provider: string, providerId: strin
     };
 
     const res: FindUserByProviderResponse =
-        await fetch(`${HOST}/service/user/v1/${provider}/${providerId}`, requestOptions)
+        await fetch(`${USERSERVICE_HOST}/service/user/v1/${provider}/${providerId}`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as UserData)
             .catch(error => error);
     return res;
 }
 
-export async function findAllUser(): Promise<FindAllUserResponse> {
+export async function findAllUser(USERSERVICE_HOST: string): Promise<FindAllUserResponse> {
     const requestOptions: RequestInit = {
         method: 'GET',
         redirect: 'follow'
     };
 
-    const res: FindAllUserResponse = await fetch(`${HOST}/service/user/v1/`, requestOptions)
+    const res: FindAllUserResponse = await fetch(`${USERSERVICE_HOST}/service/user/v1/`, requestOptions)
         .then(response => response.text())
         .then(result => JSON.parse(result))
         .catch(error => error);
     return res;
 }
 
-export async function updateUser(userData:UserData): Promise<UpdateUserResponse> {
+export async function updateUser(USERSERVICE_HOST: string, userData:UserData): Promise<UpdateUserResponse> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -191,7 +187,7 @@ export async function updateUser(userData:UserData): Promise<UpdateUserResponse>
         redirect: 'follow'
     };
 
-    const res: UpdateUserResponse = await fetch(`${HOST}/service/user/v1/`, requestOptions)
+    const res: UpdateUserResponse = await fetch(`${USERSERVICE_HOST}/service/user/v1/`, requestOptions)
         .then(response => response.text())
         .then(result => JSON.parse(result))
         .catch(error => error);

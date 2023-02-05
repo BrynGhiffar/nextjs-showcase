@@ -10,7 +10,19 @@ import { findUserByMsftProvider, UserData } from "../../clients/user_service";
 import { useRouter } from "next/router";
 import { updateUser } from "../../clients/user_service";
 
-export default function Classes() {
+export async function getStaticProps() {
+    return {
+        props: {
+            USERSERVICE_HOST: process.env.USERSERVICE_HOST!,
+        }
+    }
+}
+
+export type ClassesProps = {
+    USERSERVICE_HOST: string,
+};
+
+export default function Classes({ USERSERVICE_HOST }: ClassesProps) {
 
     const { instance, accounts } = useMsal();
     const [name, setName] = useState<string>("");
@@ -25,7 +37,7 @@ export default function Classes() {
     useEffect(() => {
         const run = async () => {
           const id = await getCurrentUserId(instance, accounts);
-          const res = await findUserByMsftProvider("MSFT", id);
+          const res = await findUserByMsftProvider(USERSERVICE_HOST, "MSFT", id);
           if (res !== null){
             set_user( _ => res.user);
           }
@@ -85,12 +97,12 @@ export default function Classes() {
                         "course_code": courseCode,
                         "projects": []
                     }
-                    const res = await create_class(classData);
+                    const res = await create_class(USERSERVICE_HOST, classData);
                     const temp = res.classes?.class_id.toString();
                     if (temp !== undefined){
                         user.classes.push(temp);
                     }
-                    const updet = await updateUser(user);
+                    const updet = await updateUser(USERSERVICE_HOST, user);
                     console.log(updet);
                     
                     router.push("/profile");

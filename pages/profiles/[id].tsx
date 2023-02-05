@@ -1,23 +1,16 @@
 import Head from "next/head";
 import Navbar from "../../components/navbar";
 import style from "../../styles/profile.module.scss";
-import profile from "../../public/profile.jpg";
 import noimage from "../../public/no-image-icon-6.png";
-import plus_sign from "../../public/plus-sign.png";
 import Image from "next/image";
 import { StaticImageData } from "next/image";
-import Link from "next/link";
 import { ChangeEvent, SetStateAction, useState, Dispatch, useEffect, useRef, Component } from "react";
-import { IPublicClientApplication, AccountInfo } from '@azure/msal-browser';
 import { useMsal } from '@azure/msal-react';
-import { loginRequest } from "../../azureAuth.config";
-import { callMsGraph } from "../../azureGraph.config";
 import { useIsAuthenticated } from '@azure/msal-react';
-import { updateDescription, findUserByMsftProvider, findUserById, UserData, EMPTY_USER_DATA } from "../../clients/user_service";
+import { findUserById, UserData, EMPTY_USER_DATA } from "../../clients/user_service";
 import { find_projects_by_user_id, ProjectData } from "../../clients/project_service";
 import { Button, Skeleton } from "@mui/material";
 import Footer from "../../components/footer";
-import { getCurrentUserId } from "../../clients/azure_client";
 import { useRouter } from "next/router";
 
 
@@ -86,11 +79,30 @@ function ProjectCard({ projectData }: ProjectCardProps) {
     )
 }
 
-type ProfileProps = {
-    userData: UserData
+export async function getStaticPaths() {
+    return {
+        paths: [],
+        fallback: "blocking"
+    };
 }
 
-export default function Profile(profileProps: ProfileProps) {
+export async function getStaticProps(_context: any) {
+    return {
+        props: {
+            USERSERVICE_HOST: process.env.USERSERVICE_HOST!,
+            PROJECTSERVICE_HOST: process.env.PROJECTSERVICE_HOST!,
+        }
+    }
+}
+
+type ProfileProps = {
+    USERSERVICE_HOST: string,
+    PROJECTSERVICE_HOST: string,
+}
+
+export default function Profile({
+    USERSERVICE_HOST, PROJECTSERVICE_HOST
+}: ProfileProps) {
     const { instance, accounts } = useMsal();
     const isAuthenticated = useIsAuthenticated();
     const [userData, setUserData] = useState<UserData>(EMPTY_USER_DATA);
@@ -104,11 +116,11 @@ export default function Profile(profileProps: ProfileProps) {
         const run = async () => {
             setIsLoading(_ => true);
             if (typeof _id === "string") {
-                const res = await findUserById(_id);
+                const res = await findUserById(USERSERVICE_HOST, _id);
                 const isError = res.toString().includes("NetworkError");
                 if (!isError) {
                     setUserData(res.user);
-                    const resProjects = await find_projects_by_user_id(res.user.user_id);
+                    const resProjects = await find_projects_by_user_id(PROJECTSERVICE_HOST, res.user.user_id);
                     const isError = resProjects.toString().includes("NetworkError");
                     if (!isError) {
                         if (resProjects.projects !== null) {

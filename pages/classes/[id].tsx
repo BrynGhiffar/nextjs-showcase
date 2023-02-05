@@ -1,6 +1,23 @@
 import Navbar from "../../components/navbar"
 
-export default function Classes() {
+export async function getStaticPaths() {
+    return {
+        paths: [],
+        fallback: "blocking"
+    };
+}
+
+export async function getStaticProps(_context: any) {
+    return {
+        props: {
+
+        }
+    };
+}
+
+type ClassesProps = {};
+
+export default function Classes({ }: ClassesProps) {
     return (
         <>
             <div>

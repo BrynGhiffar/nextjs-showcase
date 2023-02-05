@@ -4,26 +4,22 @@ import Image from "next/image";
 import Moment from 'moment';
 import style from "../../styles/project.id.module.scss";
 import { useEffect, useState } from "react";
-import { EMPTY_PROJECT_DATA, find_project_by_project_id } from "../../clients/project_service";
+import { find_project_by_project_id } from "../../clients/project_service";
 import { useRouter } from "next/router";
 import { ProjectData } from "../../clients/project_service";
-import { FindUserByIdResponse, findUserById } from "../../clients/user_service";
+import { findUserById } from "../../clients/user_service";
 import youtube from "../../public/Project/youtube.png";
 import github from "../../public/Project/github.png";
 import website from "../../public/Project/web.png";
 import YouTube, { YouTubeProps } from "react-youtube";
 import dynamic from "next/dynamic";
 import "@uiw/react-markdown-preview/markdown.css";
-import Link from "next/link";
 import {find_comment_by_project_id}  from "../../clients/comment_service";
-import { Alert, Button, CircularProgress, Skeleton, Snackbar } from "@mui/material";
+import { Alert, Button, Snackbar } from "@mui/material";
 import * as React from "react";
-import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
-import Stack from "@mui/material/Stack";
-import { CommentData, EMPTY_COMMENT_DATA } from "../../clients/comment_service";
+import { CommentData } from "../../clients/comment_service";
 import CommentCard from "../../components/commentCard";
 import { getCurrentUserId } from "../../clients/azure_client";
 import { useMsal } from "@azure/msal-react";
@@ -51,7 +47,33 @@ const sample_comment_data = [{
 
 }]
 
-export default function ProjectPage() {
+export async function getStaticPaths() {
+    return {
+        paths: [],
+        fallback: "blocking"
+    };
+}
+
+
+export async function getStaticProps(context: any) {
+  return {
+    props: {
+      USERSERVICE_HOST: process.env.USERSERVICE_HOST!,
+      PROJECTSERVICE_HOST: process.env.PROJECTSERVICE_HOST!,
+      COMMENTSERVICE_HOST: process.env.COMMENTSERVICE_HOST!,
+    }
+  }
+}
+
+type ProjectPageProps = {
+  USERSERVICE_HOST: string,
+  PROJECTSERVICE_HOST: string,
+  COMMENTSERVICE_HOST: string
+};
+
+export default function ProjectPage({
+  USERSERVICE_HOST, PROJECTSERVICE_HOST, COMMENTSERVICE_HOST
+}: ProjectPageProps) {
   type UserNameId = {
     name: string;
     id: string;
@@ -62,7 +84,7 @@ export default function ProjectPage() {
   const [user_id, set_user_id] = useState<string | null>();
   const [comment, set_comment] = useState<string>();
   const [members, set_members] = useState<Array<UserNameId> | null>(null);
-  const commentCard = (commentData: CommentData) => (<CommentCard key={commentData.project_id} commentData={commentData}/>)
+  const commentCard = (commentData: CommentData) => (<CommentCard key={commentData.project_id} commentData={commentData} USERSERVICE_HOST={USERSERVICE_HOST}/>)
   const [comments, set_comments] =  useState<CommentData[] | null>([]);
   const [cannot_comment_warning, set_cannot_comment_warning] = useState<boolean>(false);
   const router = useRouter();
@@ -79,7 +101,7 @@ export default function ProjectPage() {
   useEffect(() => {
     const run = async () => {
       const id = await getCurrentUserId(instance, accounts);
-      const res = await findUserByMsftProvider("MSFT", id);
+      const res = await findUserByMsftProvider(USERSERVICE_HOST, "MSFT", id);
       if (res.user !== null){
         set_user_id( _ => res.user.user_id);
       }
@@ -87,7 +109,7 @@ export default function ProjectPage() {
 
       if (typeof project_id === "string") {
 
-        const allComments = await find_comment_by_project_id(project_id);
+        const allComments = await find_comment_by_project_id(COMMENTSERVICE_HOST, project_id);
 
         if (allComments !== null) {
           set_comments( _ => allComments.comments);
@@ -96,7 +118,7 @@ export default function ProjectPage() {
       }
 
       if (typeof project_id === "string") {
-        const res = await find_project_by_project_id(project_id);
+        const res = await find_project_by_project_id(PROJECTSERVICE_HOST, project_id);
         if (res.project !== null) {
           set_project((_) => res.project);
           const members_id = res.project?.members!;
@@ -108,7 +130,7 @@ export default function ProjectPage() {
                 id: "",
               };
 
-              const response = await findUserById(id);
+              const response = await findUserById(USERSERVICE_HOST, id);
               if (response.user != null) {
                 userNameId.id = response.user.user_id;
                 userNameId.name = response.user.name;
@@ -257,7 +279,7 @@ export default function ProjectPage() {
                       "project_id": project_id,
                     };
                     
-                    await create_comment(commentData);
+                    await create_comment(COMMENTSERVICE_HOST, commentData);
                     window.location.reload();
                   } else {
                     set_cannot_comment_warning(true);

@@ -34,6 +34,7 @@ function handleChangeDescription(event: ChangeEvent<HTMLTextAreaElement>, state:
 type ProfileDescriptionProps = {
     user_id: string,
     description: string,
+    USERSERVICE_HOST: string,
 }
 
 function ProfileDescription(profileDescriptionProps: ProfileDescriptionProps) {
@@ -57,7 +58,7 @@ function ProfileDescription(profileDescriptionProps: ProfileDescriptionProps) {
                     onClick={_ => {
                         setEditting(edit => false);
                         setDescription(oldDesc => descriptionBuffer);
-                        updateDescription(profileDescriptionProps.user_id, descriptionBuffer);
+                        updateDescription(profileDescriptionProps.USERSERVICE_HOST, profileDescriptionProps.user_id, descriptionBuffer);
                     }}
                 >✅</button>
                 <button
@@ -101,11 +102,21 @@ function CreateClassCard() {
     </>)
 }
 
-type ProfileProps = {
-    userData: UserData
+export async function getStaticProps() {
+    return {
+        props: {
+            USERSERVICE_HOST: process.env.USERSERVICE_HOST!,
+            PROJECTSERVICE_HOST: process.env.PROJECTSERVICE_HOST!
+        }
+    };
 }
 
-export default function Profile(profileProps: ProfileProps) {
+type ProfileProps = {
+    USERSERVICE_HOST: string,
+    PROJECTSERVICE_HOST: string
+};
+
+export default function Profile({ USERSERVICE_HOST, PROJECTSERVICE_HOST }: ProfileProps) {
     const { instance, accounts } = useMsal();
     const isAuthenticated = useIsAuthenticated();
     const [ userData, setUserData ] = useState<UserData>(EMPTY_USER_DATA);
@@ -119,11 +130,11 @@ export default function Profile(profileProps: ProfileProps) {
         const run = async () => {
             setIsLoading(_ => true);
             const id = await getCurrentUserId(instance, accounts);
-            const res = await findUserByMsftProvider("MSFT", id);
+            const res = await findUserByMsftProvider(USERSERVICE_HOST, "MSFT", id);
             const isError = res.toString().includes("NetworkError");
             if (!isError) {
                 setUserData(res.user);
-                const resProjects = await find_projects_by_user_id(res.user.user_id);
+                const resProjects = await find_projects_by_user_id(PROJECTSERVICE_HOST, res.user.user_id);
                 const isError = resProjects.toString().includes("NetworkError");
                 if (!isError) {
                     if (resProjects.projects !== null) {
@@ -144,7 +155,7 @@ export default function Profile(profileProps: ProfileProps) {
     useEffect(() => {
         const run = async () => {
             setIsLoading(_ => true)
-            const classres = await find_class_by_lecturer_id(userData.user_id)
+            const classres = await find_class_by_lecturer_id(USERSERVICE_HOST, userData.user_id)
             const isError = classres.toString().includes("NetworkError");
             if (!isError) {
                 if (classres.classes !== null) {
@@ -220,7 +231,7 @@ export default function Profile(profileProps: ProfileProps) {
                                 <Skeleton style={{ marginTop: "1rem" }} variant="rounded" height={"15vh"} width={"100%"}>
                                 </Skeleton>
                             ) : (
-                                <ProfileDescription user_id={userData.user_id} description={userData.description} />
+                                <ProfileDescription user_id={userData.user_id} description={userData.description} USERSERVICE_HOST={USERSERVICE_HOST}/>
                             )
                         }
                     </div>
@@ -278,7 +289,7 @@ export default function Profile(profileProps: ProfileProps) {
                                     <Skeleton style={{ marginTop: "1rem" }} variant="rounded" height={"15vh"} width={"100%"}>
                                     </Skeleton>
                                 ) : (
-                                    <ProfileDescription user_id={userData.user_id} description={userData.description} />
+                                    <ProfileDescription user_id={userData.user_id} description={userData.description} USERSERVICE_HOST={USERSERVICE_HOST} />
                                 )
                             }
                         </div>

@@ -1,6 +1,3 @@
-import { USERSERVICE_HOST } from "../env";
-const HOST = USERSERVICE_HOST;
-
 export type ClassData = {
     "class_id": string,
     "lecturer_id": string,
@@ -43,7 +40,7 @@ export type FindClassByLecturerIdResponse={
     classes: ClassData[] | null
 };
 
-export async function create_class(classData: ClassData): Promise<CreateClassResponse> {
+export async function create_class(USERSERVICE_HOST: string, classData: ClassData): Promise<CreateClassResponse> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -57,42 +54,42 @@ export async function create_class(classData: ClassData): Promise<CreateClassRes
     };
 
     const res: CreateClassResponse = 
-        await fetch(`${HOST}/service/classes/v1/`, requestOptions)
+        await fetch(`${USERSERVICE_HOST}/service/classes/v1/`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as CreateClassResponse)
             .catch(error => error);
     return res;
 }
 
-export async function find_class_by_id(class_id: string): Promise<FindClassByIdResponse> {
+export async function find_class_by_id(USERSERVICE_HOST: string, class_id: string): Promise<FindClassByIdResponse> {
     const requestOptions: RequestInit = {
         method: 'GET',
         redirect: 'follow'
     };
 
     const res =
-        await fetch(`${HOST}/service/classes/v1/${class_id}`, requestOptions)
+        await fetch(`${USERSERVICE_HOST}/service/classes/v1/${class_id}`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as FindClassByIdResponse)
             .catch(error => error);
     return res;
 }
 
-export async function find_class_by_lecturer_id(lecturer_id: string): Promise<FindClassByLecturerIdResponse> {
+export async function find_class_by_lecturer_id(USERSERVICE_HOST: string, lecturer_id: string): Promise<FindClassByLecturerIdResponse> {
     const requestOptions: RequestInit = {
         method: 'GET',
         redirect: 'follow'
     };
 
     const res =
-        await fetch(`${HOST}/service/classes/v1/${lecturer_id}/`, requestOptions)
+        await fetch(`${USERSERVICE_HOST}/service/classes/v1/${lecturer_id}/`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as FindClassByLecturerIdResponse)
             .catch(error => error);
     return res;
 }
 
-export async function updateclass(class_id: string, classData: ClassData): Promise<UpdateClassResponse> {
+export async function updateclass(USERSERVICE_HOST: string, class_id: string, classData: ClassData): Promise<UpdateClassResponse> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -107,7 +104,7 @@ export async function updateclass(class_id: string, classData: ClassData): Promi
     };
 
     const res: UpdateClassResponse =
-        await fetch(`${HOST}/service/classes/v1/`, requestOptions)
+        await fetch(`${USERSERVICE_HOST}/service/classes/v1/`, requestOptions)
             .then(response => response.text())
             .then(result => JSON.parse(result) as UpdateClassResponse)
             .catch(error => error);

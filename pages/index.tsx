@@ -9,8 +9,21 @@ import { Pagination, Box } from '@mui/material';
 import Search from "../components/searchbar";
 import Footer from "../components/footer";
 
+export async function getStaticProps() {
+  return {
+    props: {
+      PROJECTSERVICE_HOST: process.env.PROJECTSERVICE_HOST!,
+    }
+  }
+}
 
-const Home: NextPage = () => {
+type HomeProps = {
+  PROJECTSERVICE_HOST: string,
+};
+
+const Home = ({ 
+  PROJECTSERVICE_HOST
+}: HomeProps) => {
 
   const [userProjects, setUserProjects] = useState<ProjectData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -33,7 +46,7 @@ const Home: NextPage = () => {
     const run = async () => {
       setIsLoading(_ => true);
       
-      const allProjs = await find_project_by_name(searchTerm, currentPage, projectsPerPage);
+      const allProjs = await find_project_by_name(PROJECTSERVICE_HOST, searchTerm, currentPage, projectsPerPage);
       if (allProjs.projects !== null)
       {
         const projs = allProjs.projects;
@@ -50,7 +63,7 @@ const Home: NextPage = () => {
     const run = async () => {
       setIsLoading(_ => true);
 
-      const allProjs = await find_project_by_name(searchTerm, currentPage, projectsPerPage);
+      const allProjs = await find_project_by_name(PROJECTSERVICE_HOST, searchTerm, currentPage, projectsPerPage);
       if (allProjs.projects !== null)
       {
         const projs = allProjs.projects;
@@ -66,8 +79,7 @@ const Home: NextPage = () => {
   // i love state changes
   useEffect(() => {
     if (userProjects.length !== 0) {
-      const page_total = Math.ceil(userProjects[0].projects_total / projectsPerPage);
-      console.log(page_total, currentPage);
+      const page_total = Math.ceil(userProjects.length / projectsPerPage);
       setTotalPages(page_total)
     } else {
       setTotalPages(0)
@@ -86,6 +98,7 @@ const Home: NextPage = () => {
           set_loading={setIsLoading}
           set_search_term={setSearchTerm}
           search_term={searchTerm}
+          PROJECTSERVICE_HOST={PROJECTSERVICE_HOST}
         />
         <div className={style.separator}/>
           <div className={style.project_card_container}>
