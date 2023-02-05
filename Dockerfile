@@ -5,8 +5,8 @@
 # docker container run -p 3000:3000 -it --name nextjs-showcase-container nextjs-showcase
 
 FROM node:alpine
-COPY . /app
-WORKDIR /app
+COPY . /nextjs-showcase
+WORKDIR /nextjs-showcase
 RUN npm install
 
 # Setting Environment Variables
